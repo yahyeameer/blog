@@ -25,7 +25,7 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-[#2C143B] dark:bg-[#13091B] dark:text-[#F1E3FC] font-['Space_Mono'] selection:bg-[#692484]/40 flex flex-col justify-center items-center p-6 transition-colors duration-500 relative overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] selection:bg-[#692484]/40 flex flex-col justify-center items-center p-6 viscous-transition relative overflow-hidden">
 
             {/* Background Kinetic Elements */}
             <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-[#692484]/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
@@ -35,7 +35,7 @@ export default function LoginPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20 }}
-                className="w-full max-w-md bg-[#2C143B]/5 dark:bg-white/5 backdrop-blur-xl border border-[#2C143B]/10 dark:border-white/10 p-8 md:p-12 relative z-10"
+                className="w-full max-w-md glass-panel ghost-border p-8 md:p-12 relative z-10"
             >
                 <div className="flex justify-between items-center mb-12">
                     <button onClick={() => router.push('/')} className="hover:text-[#692484] transition-colors">
@@ -46,7 +46,7 @@ export default function LoginPage() {
                     </div>
                 </div>
 
-                <div className="flex gap-4 mb-10 border-b border-[#2C143B]/10 dark:border-white/10 pb-4">
+                <div className="flex gap-4 mb-10 ghost-border pb-4">
                     <button
                         onClick={() => setIsLogin(true)}
                         className={`uppercase tracking-[0.2em] text-xs font-bold transition-colors ${isLogin ? 'text-[#692484]' : 'text-[#2C143B]/40 dark:text-[#F1E3FC]/40 hover:text-current'}`}
@@ -80,7 +80,7 @@ export default function LoginPage() {
                                     type="email"
                                     name="email"
                                     required
-                                    className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-lg focus:outline-none focus:border-[#692484] transition-colors placeholder:text-transparent"
+                                    className="w-full bg-transparent ghost-border py-3 text-lg focus:outline-none focus:border-[#692484] transition-colors placeholder:text-transparent"
                                 />
                             </div>
 
@@ -90,7 +90,7 @@ export default function LoginPage() {
                                     type="password"
                                     name="password"
                                     required
-                                    className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-lg focus:outline-none focus:border-[#692484] transition-colors placeholder:text-transparent"
+                                    className="w-full bg-transparent ghost-border py-3 text-lg focus:outline-none focus:border-[#692484] transition-colors placeholder:text-transparent"
                                 />
                             </div>
 
@@ -103,7 +103,7 @@ export default function LoginPage() {
                             <button
                                 disabled={isPending}
                                 type="submit"
-                                className="w-full relative group bg-[#2C143B] dark:bg-[#F1E3FC] text-[#FAFAFA] dark:text-[#13091B] py-4 uppercase tracking-[0.2em] font-bold text-xs mt-4 overflow-hidden disabled:opacity-50"
+                                className="w-full relative group primary-gradient-cta text-white rounded-sm viscous-transition py-4 uppercase tracking-[0.2em] font-bold text-xs mt-4 overflow-hidden disabled:opacity-50"
                             >
                                 <span className="relative z-10 group-hover:text-white transition-colors duration-300">
                                     {isPending ? "Processing..." : (isLogin ? "Access Archives" : "Establish Identity")}

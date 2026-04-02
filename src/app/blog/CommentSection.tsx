@@ -40,7 +40,7 @@ export function CommentSection({
     }
 
     return (
-        <section className="mt-24 pt-12 border-t border-[#2C143B]/20 dark:border-white/20">
+        <section className="mt-24 pt-12 ghost-border">
             <h3 className="font-['Syncopate'] text-3xl font-bold uppercase tracking-tighter mb-12">Discourse_</h3>
 
             {/* Comment Form */}
@@ -52,13 +52,13 @@ export function CommentSection({
                         placeholder="Add to the archive..."
                         required
                         rows={4}
-                        className="w-full bg-[#2C143B]/5 dark:bg-white/5 border border-[#2C143B]/10 dark:border-white/10 p-4 text-[#2C143B] dark:text-[#F1E3FC] font-sans focus:outline-none focus:border-[#692484] transition-colors resize-y shadow-inner"
+                        className="w-full bg-[#2C143B]/5 dark:bg-white/5 ghost-border p-4 text-[#2C143B] dark:text-[#F1E3FC] font-sans focus:outline-none focus:border-[#692484] transition-colors resize-y shadow-inner"
                     />
                     {error && <p className="text-[#692484] text-xs font-bold mt-2">{error}</p>}
                     <button
                         disabled={isPending || !content.trim()}
                         type="submit"
-                        className="mt-4 px-8 py-3 bg-[#2C143B] dark:bg-[#F1E3FC] text-[#FAFAFA] dark:text-[#13091B] uppercase tracking-widest font-bold text-xs disabled:opacity-50 hover:bg-[#692484] dark:hover:bg-[#692484] hover:text-[#13091B] transition-colors"
+                        className="mt-4 px-8 py-3 primary-gradient-cta text-white rounded-sm viscous-transition uppercase tracking-widest font-bold text-xs disabled:opacity-50 hover:bg-[#692484] dark:hover:bg-[#692484] hover:text-[#13091B] transition-colors"
                     >
                         {isPending ? "Transmitting..." : "Submit Entry"}
                     </button>
@@ -77,7 +77,7 @@ export function CommentSection({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: idx * 0.1 }}
                         key={comment.id}
-                        className="p-6 bg-[#2C143B]/5 dark:bg-[#13091B]/80 border-l-2 border-[#2C143B]/20 dark:border-white/20 hover:border-[#692484] transition-colors"
+                        className="p-6 bg-surface-container rounded-xl ghost-border hover:border-[#692484] transition-colors"
                     >
                         <div className="flex justify-between items-center mb-4">
                             <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#692484]">User_{comment.user_id.substring(0, 6)}</span>

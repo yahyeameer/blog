@@ -64,7 +64,7 @@ export default function EditPostClient({ post }: { post: Post }) {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-[#2C143B] dark:bg-[#13091B] dark:text-[#F1E3FC] font-['Space_Mono'] transition-colors duration-500 py-24 px-6 md:px-12 relative overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] viscous-transition py-24 px-6 md:px-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#692484]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
             <div className="max-w-3xl mx-auto relative z-10">
@@ -79,22 +79,22 @@ export default function EditPostClient({ post }: { post: Post }) {
                 </div>
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <h1 className="font-['Syncopate'] text-3xl md:text-5xl font-bold uppercase tracking-tighter mb-10">
+                    <h1 className="font-['Syncopate'] text-[28px] sm:text-3xl md:text-5xl font-bold uppercase tracking-tighter mb-8 sm:mb-10">
                         Edit <span className="text-[#692484]">Entry.</span>
                     </h1>
 
-                    <form action={handleSubmit} className="space-y-8 bg-[#2C143B]/5 dark:bg-white/5 backdrop-blur-xl border border-[#2C143B]/10 dark:border-white/10 p-8 md:p-12 rounded-2xl">
+                    <form action={handleSubmit} className="space-y-6 sm:space-y-8 glass-panel ghost-border p-5 sm:p-8 md:p-12 rounded-2xl">
 
                         <div>
                             <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Title</label>
                             <input type="text" name="title" required defaultValue={post.title}
-                                className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-xl font-['Syncopate'] uppercase focus:outline-none focus:border-[#692484] transition-colors" />
+                                className="w-full bg-transparent ghost-border py-3 text-xl font-['Syncopate'] uppercase focus:outline-none focus:border-[#692484] transition-colors" />
                         </div>
 
                         <div>
                             <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Category</label>
                             <input type="text" name="topic" defaultValue={post.topic || ""}
-                                className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-base focus:outline-none focus:border-[#692484] transition-colors" />
+                                className="w-full bg-transparent ghost-border py-3 text-base focus:outline-none focus:border-[#692484] transition-colors" />
                         </div>
 
                         {/* Image */}
@@ -102,7 +102,7 @@ export default function EditPostClient({ post }: { post: Post }) {
                             <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Fragrance Image</label>
                             <input type="hidden" name="image_url" value={imageUrl} />
                             <div onClick={() => fileRef.current?.click()}
-                                className="relative border-2 border-dashed border-[#692484]/30 hover:border-[#692484] rounded-xl p-6 text-center cursor-pointer transition-colors duration-200 group">
+                                className="relative border-2 border-dashed border-[#692484]/30 hover:border-[#692484] rounded-xl p-5 sm:p-6 text-center cursor-pointer transition-colors duration-200 group flex flex-col items-center justify-center">
                                 {preview ? (
                                     <div>
                                         <img src={preview} alt="Preview" className="max-h-44 mx-auto object-contain" />
@@ -116,7 +116,7 @@ export default function EditPostClient({ post }: { post: Post }) {
                                 onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPreview(URL.createObjectURL(f)); handleImageUpload(f); } }} />
                             <input type="url" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setPreview(e.target.value); }}
                                 placeholder="or paste image URL"
-                                className="w-full bg-transparent border-b border-[#2C143B]/10 dark:border-white/10 py-2 text-xs mt-3 focus:outline-none focus:border-[#692484] transition-colors text-[#2C143B]/60 dark:text-[#F1E3FC]/60" />
+                                className="w-full bg-transparent ghost-border py-2 text-xs mt-3 focus:outline-none focus:border-[#692484] transition-colors text-[#2C143B]/60 dark:text-[#F1E3FC]/60" />
                         </div>
 
                         <div>
@@ -129,7 +129,7 @@ export default function EditPostClient({ post }: { post: Post }) {
                         <AnimatePresence>{success && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#692484] text-xs font-bold bg-[#692484]/10 p-3 border border-[#692484]/20 rounded-lg text-center uppercase tracking-widest">✓ Updated. Returning...</motion.div>}</AnimatePresence>
 
                         <button disabled={isPending || uploading} type="submit"
-                            className="w-full relative group bg-[#692484] text-white py-5 uppercase tracking-[0.2em] font-bold text-sm overflow-hidden disabled:opacity-50 rounded-xl">
+                            className="w-full relative group primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 py-5 uppercase tracking-[0.2em] font-bold text-sm overflow-hidden disabled:opacity-50 rounded-xl">
                             <span className="relative z-10">{isPending ? "Saving..." : "Save Changes"}</span>
                             <motion.div className="absolute inset-0 bg-[#8B30A4] z-0 origin-left" initial={{ scaleX: 0 }} whileHover={{ scaleX: 1 }} transition={{ ease: "circOut" }} />
                         </button>
@@ -140,9 +140,9 @@ export default function EditPostClient({ post }: { post: Post }) {
             {/* Delete Confirmation Modal */}
             <AnimatePresence>
                 {confirmDelete && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-[#13091B]/90 backdrop-blur-xl flex items-center justify-center p-6">
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-[#13091B]/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6">
                         <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-                            className="bg-[#1A0A24] border border-red-500/20 rounded-2xl p-8 max-w-sm w-full text-center">
+                            className="bg-[#1A0A24] border border-red-500/20 rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center max-h-[100dvh] overflow-y-auto">
                             <h3 className="font-['Syncopate'] text-lg font-bold uppercase mb-4 text-[#F1E3FC]">Delete This Post?</h3>
                             <p className="text-xs text-[#F1E3FC]/60 mb-8 leading-relaxed">This action is permanent and cannot be undone. The post will be removed from the archives.</p>
                             <div className="flex gap-3">

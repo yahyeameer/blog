@@ -19,7 +19,7 @@ export default async function AdminPage() {
     const { data: posts } = await supabase.from("posts").select("id, title, slug, topic, image_url, created_at").order("created_at", { ascending: false });
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-[#2C143B] dark:bg-[#13091B] dark:text-[#F1E3FC] font-['Space_Mono'] py-24 px-6 md:px-12 relative overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] py-24 px-6 md:px-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#692484]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
             <div className="max-w-5xl mx-auto relative z-10">
@@ -29,13 +29,13 @@ export default async function AdminPage() {
                         Home
                     </Link>
                     <Link href="/admin/create-post"
-                        className="px-6 py-3 bg-[#692484] text-white text-xs uppercase tracking-[0.2em] font-bold rounded-xl hover:bg-[#8B30A4] transition-colors flex items-center gap-2">
+                        className="px-6 py-3 primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 text-xs uppercase tracking-[0.2em] font-bold rounded-xl hover:bg-[#8B30A4] transition-colors flex items-center gap-2">
                         <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
                         New Post
                     </Link>
                 </div>
 
-                <h1 className="font-['Syncopate'] text-4xl md:text-6xl font-bold uppercase tracking-tighter mb-4">
+                <h1 className="font-['Syncopate'] text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-4">
                     Admin <span className="text-[#692484]">Panel.</span>
                 </h1>
                 <p className="text-xs text-[#2C143B]/50 dark:text-[#F1E3FC]/40 uppercase tracking-widest mb-16">
@@ -45,7 +45,7 @@ export default async function AdminPage() {
                 <div className="space-y-3">
                     {posts?.map((post) => (
                         <div key={post.id}
-                            className="group flex items-center gap-5 bg-white dark:bg-[#1A0A24] border border-[#692484]/10 dark:border-[#692484]/20 rounded-xl p-4 hover:border-[#692484]/40 transition-colors duration-200">
+                            className="group flex items-center gap-5 bg-surface-container-lowest ghost-border rounded-xl p-4 hover:border-[#692484]/40 transition-colors duration-200">
                             {/* Thumbnail */}
                             <div className="w-14 h-14 rounded-lg bg-[#692484]/10 flex-shrink-0 overflow-hidden">
                                 {post.image_url ? (
@@ -74,7 +74,7 @@ export default async function AdminPage() {
 
                             {/* Edit Button */}
                             <Link href={`/admin/edit-post/${post.id}`}
-                                className="flex-shrink-0 px-4 py-2 border border-[#692484]/30 text-[#692484] text-[10px] uppercase tracking-widest font-bold rounded-lg hover:bg-[#692484] hover:text-white transition-all duration-200 opacity-0 group-hover:opacity-100">
+                                className="flex-shrink-0 px-4 py-2 border border-[#692484]/30 text-[#692484] text-[10px] uppercase tracking-widest font-bold rounded-lg hover:bg-[#692484] hover:text-white transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100">
                                 Edit
                             </Link>
                         </div>
@@ -83,7 +83,7 @@ export default async function AdminPage() {
                     {(!posts || posts.length === 0) && (
                         <div className="text-center py-24 border border-dashed border-[#692484]/20 rounded-2xl">
                             <p className="text-xs uppercase tracking-widest text-[#2C143B]/40 dark:text-[#F1E3FC]/40 mb-6">No posts yet</p>
-                            <Link href="/admin/create-post" className="px-6 py-3 bg-[#692484] text-white text-xs uppercase tracking-widest font-bold rounded-xl">
+                            <Link href="/admin/create-post" className="px-6 py-3 primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 text-xs uppercase tracking-widest font-bold rounded-xl">
                                 Create Your First Post
                             </Link>
                         </div>

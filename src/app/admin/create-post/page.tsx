@@ -51,7 +51,7 @@ export default function CreatePostPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] text-[#2C143B] dark:bg-[#13091B] dark:text-[#F1E3FC] font-['Space_Mono'] transition-colors duration-500 py-24 px-6 md:px-12 relative overflow-hidden">
+        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] viscous-transition py-24 px-6 md:px-12 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#692484]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#692484]/5 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none" />
 
@@ -65,18 +65,18 @@ export default function CreatePostPage() {
                 </div>
 
                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ type: "spring" }}>
-                    <h1 className="font-['Syncopate'] text-4xl md:text-6xl font-bold uppercase tracking-tighter mb-12">
+                    <h1 className="font-['Syncopate'] text-[28px] sm:text-4xl md:text-5xl font-bold uppercase tracking-tighter mb-8 sm:mb-12">
                         Draft <br /><span className="text-[#692484]">Masterpiece.</span>
                     </h1>
 
-                    <form action={handleSubmit} className="space-y-8 bg-[#2C143B]/5 dark:bg-white/5 backdrop-blur-xl border border-[#2C143B]/10 dark:border-white/10 p-8 md:p-12 rounded-2xl">
+                    <form action={handleSubmit} className="space-y-6 sm:space-y-8 glass-panel ghost-border p-5 sm:p-8 md:p-12 rounded-2xl">
 
                         {/* Title */}
                         <div>
                             <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Fragrance Title</label>
                             <input type="text" name="title" required
                                 placeholder="e.g. Brazilian Tobacco — The Dance of Bergamot"
-                                className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-xl font-['Syncopate'] uppercase focus:outline-none focus:border-[#692484] transition-colors" />
+                                className="w-full bg-transparent ghost-border py-3 text-xl font-['Syncopate'] uppercase focus:outline-none focus:border-[#692484] transition-colors" />
                         </div>
 
                         {/* Topic */}
@@ -84,7 +84,7 @@ export default function CreatePostPage() {
                             <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Category</label>
                             <input type="text" name="topic"
                                 placeholder="e.g. Scent Review · Oud Collection · Musk Collection"
-                                className="w-full bg-transparent border-b border-[#2C143B]/20 dark:border-white/20 py-3 text-base focus:outline-none focus:border-[#692484] transition-colors" />
+                                className="w-full bg-transparent ghost-border py-3 text-base focus:outline-none focus:border-[#692484] transition-colors" />
                         </div>
 
                         {/* Image Upload */}
@@ -95,7 +95,7 @@ export default function CreatePostPage() {
                             {/* Upload Zone */}
                             <div
                                 onClick={() => fileRef.current?.click()}
-                                className="relative border-2 border-dashed border-[#692484]/30 hover:border-[#692484] rounded-xl p-8 text-center cursor-pointer transition-colors duration-200 group"
+                                className="relative border-2 border-dashed border-[#692484]/30 hover:border-[#692484] rounded-xl p-5 sm:p-8 text-center cursor-pointer transition-colors duration-200 group flex flex-col items-center justify-center"
                             >
                                 {preview ? (
                                     <div className="relative">
@@ -132,7 +132,7 @@ export default function CreatePostPage() {
                             <div className="mt-3">
                                 <input type="url" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setPreview(e.target.value); }}
                                     placeholder="or paste image URL: https://..."
-                                    className="w-full bg-transparent border-b border-[#2C143B]/10 dark:border-white/10 py-2 text-xs focus:outline-none focus:border-[#692484] transition-colors text-[#2C143B]/60 dark:text-[#F1E3FC]/60" />
+                                    className="w-full bg-transparent ghost-border py-2 text-xs focus:outline-none focus:border-[#692484] transition-colors text-[#2C143B]/60 dark:text-[#F1E3FC]/60" />
                             </div>
                         </div>
 
@@ -161,7 +161,7 @@ export default function CreatePostPage() {
                         </AnimatePresence>
 
                         <button disabled={isPending || uploading} type="submit"
-                            className="w-full relative group bg-[#692484] text-white py-5 uppercase tracking-[0.2em] font-bold text-sm overflow-hidden disabled:opacity-50 rounded-xl">
+                            className="w-full relative group primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 py-5 uppercase tracking-[0.2em] font-bold text-sm overflow-hidden disabled:opacity-50 rounded-xl">
                             <span className="relative z-10 group-hover:tracking-widest transition-all duration-300">
                                 {isPending ? "Publishing..." : uploading ? "Uploading Image..." : "Publish to Archives"}
                             </span>

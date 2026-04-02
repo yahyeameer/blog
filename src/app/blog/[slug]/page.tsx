@@ -27,10 +27,10 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         .order('created_at', { ascending: true });
 
     return (
-        <div className="min-h-screen bg-[#FDFCE4] text-[#111111] dark:bg-[#18181B] dark:text-[#FAFAFA] font-['Space_Mono'] selection:bg-[#EC4899]/40 transition-colors duration-500 flex flex-col pt-24 px-6 md:px-12 lg:px-24">
+        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] selection:bg-[#EC4899]/40 viscous-transition flex flex-col pt-24 px-6 md:px-12 lg:px-24">
 
             {/* Top Kinetic Bar & Nav (Simplified for reading) */}
-            <div className="fixed top-0 left-0 right-0 z-50 bg-[#FDFCE4]/90 dark:bg-[#18181B]/90 backdrop-blur-xl border-b border-[#111111]/10 dark:border-white/10 h-20 flex justify-between items-center px-6 md:px-12 transition-colors duration-500">
+            <div className="fixed top-0 left-0 right-0 z-50 glass-panel ghost-border h-20 flex justify-between items-center px-6 md:px-12 viscous-transition">
                 <Link href="/" className="uppercase tracking-[0.2em] text-[#EC4899] text-xs font-bold hover:text-[#111111] dark:hover:text-white transition-colors flex items-center gap-2">
                     <span className="text-xl">←</span> Return
                 </Link>
