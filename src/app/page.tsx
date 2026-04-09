@@ -1,21 +1,24 @@
-import { createClient } from "@/lib/supabase-server";
+import { createClient } from "@supabase/supabase-js";
 import { AmbrelleClientPage } from "@/components/AmbrelleClientPage";
 
+export const revalidate = 60; // ISR cache revalidation every 60 seconds
+
 export default async function Home() {
-  const supabase = await createClient();
+  // Use pure stateless Supabase JS client to fetch posts without reading cookies.
+  // This allows the Next.js App router to statically generate and cache this page on the Edge.
+  const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-  // Fetch the active session
-  const { data: { session } } = await supabase.auth.getSession();
-
-  // Fetch all posts (we can separate the "Brand story" later if needed, but for now we fetch all)
+  // Fetch all posts globally
   const { data: posts } = await supabase
-    .from('posts')
-    .select('*')
-    .order('created_at', { ascending: false });
+      .from('posts')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
 
-  // Use the very first post as the main content if it exists
   const mainPost = posts && posts.length > 0 ? posts[0] : null;
 
-  return <AmbrelleClientPage postContent={mainPost?.content} posts={posts || []} user={session?.user} />;
+  return <AmbrelleClientPage postContent={mainPost?.content || ""} posts={posts || []} />;
 }
-

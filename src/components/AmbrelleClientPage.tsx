@@ -1,226 +1,458 @@
 "use client";
 
-import React, { useRef, useState } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ThemeToggle } from "./ThemeToggle";
+import React, { useState, useMemo } from "react";
 import { signout } from "@/app/login/actions";
 import { FragranceModal } from "./FragranceModal";
 import Link from "next/link";
 import Image from "next/image";
 import { Post, User } from "@/types";
 
+import { createClient } from "@/lib/supabase-client";
+
 export function AmbrelleClientPage({
     postContent,
     posts,
-    user
 }: {
     postContent?: string;
     posts?: Post[];
-    user?: User | null;
 }) {
+    const [user, setUser] = useState<User | null>(null);
+    const supabase = createClient();
+    
+    React.useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUser(session?.user || null);
+        });
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [supabase.auth]);
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [searchOpen, setSearchOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    // Extract unique categories (topics)
+    const categories = useMemo(() => {
+        const cats = new Set((posts || []).map(p => p.topic).filter(Boolean));
+        return ["All", ...Array.from(cats)];
+    }, [posts]);
+
+    const [activeCategory, setActiveCategory] = useState("All");
+
+    // Local Storage Wishlist state
+    const [wishlist, setWishlist] = useState<string[]>([]);
+    const [hasLoadedWishlist, setHasLoadedWishlist] = useState(false);
+
+    // Filter products based on search query AND active category
+    const filteredPosts = useMemo(() => {
+        let p = posts || [];
+        if (activeCategory !== "All") {
+            p = p.filter(x => x.topic === activeCategory);
+        }
+        if (!searchQuery.trim()) return p;
+        const q = searchQuery.toLowerCase();
+        return p.filter(
+            x => x.title.toLowerCase().includes(q) ||
+                 x.topic?.toLowerCase().includes(q) ||
+                 x.content?.toLowerCase().includes(q)
+        );
+    }, [posts, searchQuery, activeCategory]);
+
+    // Load wishlist from local storage on mount
+    React.useEffect(() => {
+        try {
+            const stored = localStorage.getItem("ambrelle_wishlist");
+            if (stored) setWishlist(JSON.parse(stored));
+        } catch (e) {
+            console.error("Failed to load wishlist", e);
+        }
+        setHasLoadedWishlist(true);
+    }, []);
+
+    // Save wishlist to local storage when changed
+    React.useEffect(() => {
+        if (!hasLoadedWishlist) return;
+        try {
+            localStorage.setItem("ambrelle_wishlist", JSON.stringify(wishlist));
+        } catch (e) {
+            console.error("Failed to save wishlist", e);
+        }
+    }, [wishlist, hasLoadedWishlist]);
+
+    const toggleWishlist = (e: React.MouseEvent, postId: string) => {
+        e.stopPropagation();
+        setWishlist(prev => 
+            prev.includes(postId) 
+                ? prev.filter(id => id !== postId) 
+                : [...prev, postId]
+        );
+    };
+
+    // Scroll to collections section
+    const scrollToCollections = () => {
+        document.getElementById("collections")?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    // Check if post is considered "New" (created within last 7 days)
+    const isNewArrival = (createdAtStr: string) => {
+        const createdAt = new Date(createdAtStr);
+        const sevenDaysAgo = new Date();
+        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+        return createdAt >= sevenDaysAgo;
+    };
+
+    // Smooth scroll to top
+    const [showTopButton, setShowTopButton] = useState(false);
+    React.useEffect(() => {
+        const handleScroll = () => setShowTopButton(window.scrollY > 400);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
 
     return (
-        <div className="bg-background text-foreground font-['Inter'] selection:bg-primary selection:text-primary-foreground overflow-x-hidden min-h-[max(884px,100dvh)]">
-            
-            {/* TopAppBar */}
-            <header className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-3xl" style={{ boxShadow: "0 20px 40px rgba(105,36,132,0.08)" }}>
-                <div className="flex justify-between items-center w-full px-6 py-4 max-w-none bg-gradient-to-b from-surface-container-lowest to-transparent">
-                    <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-primary hover:opacity-80 transition-opacity duration-300 md:hidden" aria-label="Toggle mobile menu">
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>menu</span>
-                    </button>
-                    {/* Desktop Left Nav */}
-                    <div className="hidden md:flex gap-6 lg:gap-8 uppercase text-[10px] tracking-[0.15em] font-bold items-center font-['Space_Mono'] text-primary">
-                        <button className="transition-colors hover:text-white" onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' })}>Our Story</button>
-                        <button className="transition-colors hover:text-white" onClick={() => window.scrollTo({ top: window.innerHeight * 1.8, behavior: 'smooth' })}>The Collection</button>
+        <div className="bg-white text-black font-['Inter'] selection:bg-black selection:text-white min-h-screen">
+            {/* Top Black Banner */}
+            <div className="w-full bg-[#1c1c1c] text-white text-center py-3 text-[13px] md:text-[14px] font-medium tracking-wide">
+                Welcome to AMBRELLE
+            </div>
+
+            {/* Header Area */}
+            <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-40">
+                <div className="flex justify-between items-center px-4 py-4 md:py-5 max-w-7xl mx-auto">
+                    
+                    {/* Left: Menu & Desktop Navigation */}
+                    <div className="flex-1 flex justify-start items-center gap-6">
+                        <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-black hover:opacity-60 transition-opacity" aria-label="Menu">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                        
+                        {/* Desktop Links */}
+                        <div className="hidden md:flex gap-6 uppercase text-xs tracking-widest text-black">
+                            <button onClick={scrollToCollections} className="hover:opacity-60 transition-opacity">Shop</button>
+                            <button onClick={scrollToCollections} className="hover:opacity-60 transition-opacity">Collections</button>
+                        </div>
                     </div>
 
-                    <h1 className="text-2xl font-bold tracking-[0.2em] text-primary font-['Syncopate'] uppercase text-center md:flex-1 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>AMBRELLE</h1>
+                    {/* Center: Logo */}
+                    <div className="flex-2 flex justify-center text-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
+                        <h1 className="text-xl md:text-3xl font-light tracking-[0.3em] text-black uppercase font-['Syncopate']">
+                            AMBRELLE
+                        </h1>
+                    </div>
                     
-                    <div className="flex items-center gap-4">
-                        <div className="hidden md:flex gap-6 lg:gap-8 uppercase text-[10px] tracking-[0.15em] font-bold items-center font-['Space_Mono'] text-primary">
+                    {/* Right: Icons and Auth */}
+                    <div className="flex-1 flex justify-end items-center gap-1 md:gap-4">
+                        <div className="hidden md:flex gap-4 uppercase text-xs tracking-widest text-[#555]">
                             {user ? (
                                 <>
-                                    <Link href="/admin" className="hover:text-white transition-colors">Admin</Link>
-                                    <button onClick={() => signout()} className="text-primary/50 hover:text-red-400 transition-colors">Sign Out</button>
+                                    <Link href="/admin" className="hover:text-black transition-colors">Admin</Link>
+                                    <button onClick={() => signout()} className="hover:text-black transition-colors">Sign Out</button>
                                 </>
                             ) : (
-                                <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+                                <Link href="/login" className="hover:text-black transition-colors">Sign In</Link>
                             )}
                         </div>
-                        <div className="hidden md:block"><ThemeToggle /></div>
+                        {/* Search Button */}
+                        <button onClick={() => setSearchOpen(true)} aria-label="Search" className="p-2 hover:opacity-60 transition-opacity">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </button>
+                        {/* Wishlist Button */}
+                        <button onClick={scrollToCollections} aria-label="Wishlist" className="p-2 hover:opacity-60 transition-opacity relative">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                            </svg>
+                            {wishlist.length > 0 && (
+                                <span className="absolute top-1 right-0 bg-black text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
+                                    {wishlist.length}
+                                </span>
+                            )}
+                        </button>
+                        {/* Cart Button */}
+                        <button onClick={scrollToCollections} aria-label="Cart" className="p-2 hover:opacity-60 transition-opacity">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <path d="M16 10a4 4 0 0 1-8 0"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </header>
 
-            {/* Mobile Nav Overlay */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        className="fixed inset-0 z-40 glass-panel flex flex-col items-center justify-center gap-8 md:hidden"
-                        onClick={() => setMobileMenuOpen(false)}
-                    >
-                        <button className="font-['Space_Grotesk'] text-3xl font-bold text-foreground hover:text-primary transition-colors" onClick={() => { setMobileMenuOpen(false); window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' }); }}>Our Story</button>
-                        <button className="font-['Space_Grotesk'] text-3xl font-bold text-foreground hover:text-primary transition-colors" onClick={() => { setMobileMenuOpen(false); window.scrollTo({ top: window.innerHeight * 1.8, behavior: 'smooth' }); }}>The Collection</button>
-                        {user ? (
+            {/* ─── Search Overlay ─── */}
+            {searchOpen && (
+                <div className="fixed inset-0 z-[100] bg-white flex flex-col">
+                    {/* Search Header */}
+                    <div className="flex items-center gap-4 px-4 md:px-8 py-4 border-b border-gray-100 max-w-4xl mx-auto w-full">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input
+                            type="text"
+                            autoFocus
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search fragrances..."
+                            className="flex-1 text-lg bg-transparent outline-none placeholder:text-gray-300"
+                        />
+                        <button onClick={() => { setSearchOpen(false); setSearchQuery(""); }} className="p-2 hover:opacity-60 transition-opacity">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+
+                    {/* Search Results */}
+                    <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-4xl mx-auto w-full">
+                        {searchQuery.trim() ? (
                             <>
-                                <Link href="/admin" className="font-['Space_Grotesk'] text-3xl font-bold text-primary">Admin</Link>
-                                <button onClick={() => { setMobileMenuOpen(false); signout(); }} className="font-['Space_Grotesk'] text-xl text-red-400 hover:text-red-500 transition-colors">Sign Out</button>
+                                <p className="text-xs text-gray-400 uppercase tracking-wider mb-6">
+                                    {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
+                                </p>
+                                {filteredPosts.length > 0 ? (
+                                    <div className="space-y-3">
+                                        {filteredPosts.map(post => (
+                                            <button
+                                                key={post.id}
+                                                onClick={() => { setSearchOpen(false); setSearchQuery(""); setSelectedPost(post); }}
+                                                className="w-full flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors text-left"
+                                            >
+                                                <div className="w-14 h-14 bg-gray-100 rounded-lg overflow-hidden relative flex-shrink-0">
+                                                    {post.image_url && (
+                                                        <Image src={post.image_url} alt={post.title} fill sizes="56px" className="object-cover" />
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="font-medium text-sm truncate">{post.title}</p>
+                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                        {post.topic && <span className="text-xs text-gray-400">{post.topic}</span>}
+                                                        {post.price && (
+                                                            <div className="flex items-center gap-2">
+                                                                {post.compare_at_price && (
+                                                                    <span className="text-[10px] text-gray-400 line-through">${Number(post.compare_at_price).toFixed(2)}</span>
+                                                                )}
+                                                                <span className="text-xs font-medium text-red-600">${Number(post.price).toFixed(2)}</span>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" className="flex-shrink-0">
+                                                    <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                                                </svg>
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="text-center py-16">
+                                        <p className="text-gray-300 text-sm">No products match your search</p>
+                                    </div>
+                                )}
                             </>
                         ) : (
-                            <Link href="/login" className="font-['Space_Grotesk'] text-3xl font-bold text-primary">Sign In</Link>
+                            <div className="text-center py-16">
+                                <p className="text-gray-300 text-sm">Start typing to search fragrances</p>
+                            </div>
                         )}
-                        <div className="mt-4"><ThemeToggle /></div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                    </div>
+                </div>
+            )}
+
+            {/* ─── Mobile Menu Drawer ─── */}
+            {mobileMenuOpen && (
+                <>
+                    {/* Backdrop */}
+                    <div className="fixed inset-0 z-50 bg-black/30" onClick={() => setMobileMenuOpen(false)}></div>
+                    {/* Drawer */}
+                    <div className="fixed inset-y-0 left-0 z-50 bg-white w-[280px] max-w-[80vw] shadow-2xl flex flex-col">
+                        <div className="flex items-center justify-between p-5 border-b border-gray-100">
+                            <span className="text-sm font-light tracking-[0.2em] uppercase font-['Syncopate']">Menu</span>
+                            <button onClick={() => setMobileMenuOpen(false)} className="p-2 hover:opacity-60 transition-opacity" aria-label="Close menu">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                        <nav className="flex-1 p-5">
+                            <div className="flex flex-col gap-1">
+                                <button onClick={() => { setMobileMenuOpen(false); scrollToCollections(); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Shop</button>
+                                <button onClick={() => { setMobileMenuOpen(false); scrollToCollections(); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Collections</button>
+                                <button onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors flex items-center gap-3">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8"></circle>
+                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                    </svg>
+                                    Search
+                                </button>
+                            </div>
+                            <div className="border-t border-gray-100 mt-4 pt-4 flex flex-col gap-1">
+                                {user ? (
+                                    <>
+                                        <Link href="/admin" onClick={() => setMobileMenuOpen(false)} className="py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Admin</Link>
+                                        <button onClick={() => { signout(); setMobileMenuOpen(false); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest text-red-500 hover:bg-red-50 rounded-md transition-colors">Sign Out</button>
+                                    </>
+                                ) : (
+                                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Sign In</Link>
+                                )}
+                            </div>
+                        </nav>
+                        {/* Drawer Footer */}
+                        <div className="p-5 border-t border-gray-100">
+                            <p className="text-[10px] text-gray-300 uppercase tracking-widest">&copy; {new Date().getFullYear()} Ambrelle</p>
+                        </div>
+                    </div>
+                </>
+            )}
 
             <main>
-                {/* Immersive Hero */}
-                <section className="relative min-h-[90vh] md:min-h-screen flex flex-col justify-end px-6 pb-32 pt-24 overflow-hidden">
-                    <div className="absolute inset-0 z-0">
-                        <Image alt="Ambrelle Atmospheric Profile" fill priority sizes="100vw" quality={85} className="object-cover opacity-60 scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDztF3q06VmuTt2v6jxYOfnXDQLcBBn9gLPethq16BzebyfsIS6i49jqNcgayBDtDqtkeDGUPJy8HVogDiY6G8UjuFUDi-84RGmBbI9Km2x3nEafXTYBAE00LCXYdxg1Wx6SPz5wPtn2elnZTQKbwGJxpWkp_gwBGRno7_PPq7hrO_0Pg1Qv_LBW0FlnXHkj50J6y_4J8jGNcBIRvSAc5B-QxhS6-NZU92lNLBdTbh9_r1ZPcivP5WthTwnYZvVgz4VN77zKfKhSeV3"/>
-                        <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-surface-container-lowest/40"></div>
-                    </div>
-                    <div className="relative z-10 space-y-6 max-w-2xl">
-                        <motion.p initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="font-['Space_Mono'] text-primary tracking-[0.3em] text-[10px] uppercase">Haute Parfumerie 2026</motion.p>
-                        <motion.h2 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4, type: "spring" }} className="font-['Syncopate'] font-bold text-4xl sm:text-5xl md:text-7xl leading-tight tracking-tighter text-foreground">
-                            SCENT AS <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#edb1ff] to-[#692484]">VELOCITY.</span>
-                        </motion.h2>
-                        <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6, type: "spring" }} className="text-muted-foreground max-w-md leading-relaxed text-sm md:text-lg font-light">
-                            Where luxury meets identity. Every fragrance tells a story of elegance, captured in a moment of atmospheric movement.
-                        </motion.p>
-                        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8, type: "spring" }} className="flex flex-col sm:flex-row gap-4 pt-4">
-                            <button onClick={() => window.scrollTo({ top: window.innerHeight * 1.8, behavior: 'smooth' })} className="w-full sm:w-auto px-8 py-4 primary-gradient-cta text-white font-['Space_Mono'] text-[10px] tracking-widest uppercase hover:opacity-90 viscous-transition rounded-sm shadow-lg shadow-[#692484]/20 cursor-pointer">
-                                Enter The Archives
+                {/* Hero Banner */}
+                <section className="relative w-full h-[300px] md:h-[500px]">
+                    <Image src="https://lh3.googleusercontent.com/aida-public/AB6AXuDztF3q06VmuTt2v6jxYOfnXDQLcBBn9gLPethq16BzebyfsIS6i49jqNcgayBDtDqtkeDGUPJy8HVogDiY6G8UjuFUDi-84RGmBbI9Km2x3nEafXTYBAE00LCXYdxg1Wx6SPz5wPtn2elnZTQKbwGJxpWkp_gwBGRno7_PPq7hrO_0Pg1Qv_LBW0FlnXHkj50J6y_4J8jGNcBIRvSAc5B-QxhS6-NZU92lNLBdTbh9_r1ZPcivP5WthTwnYZvVgz4VN77zKfKhSeV3" priority alt="Banner" fill className="object-cover object-center opacity-90"/>
+                    <div className="absolute inset-0 flex flex-col justify-center items-end pe-8 md:pe-24">
+                        <div className="text-right">
+                            <h2 className="text-5xl md:text-7xl text-white font-['Playfair_Display'] italic mb-4 drop-shadow-lg">Collection</h2>
+                            <button onClick={scrollToCollections} className="bg-white/90 text-black uppercase tracking-widest px-8 py-3 text-sm font-medium shadow-lg hover:bg-white transition-colors backdrop-blur-sm">
+                                Shop Now
                             </button>
-                            <a href="https://wa.me/97474068029" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto px-8 py-4 glass-panel ghost-border text-foreground font-['Space_Mono'] text-[10px] tracking-widest uppercase hover:bg-muted/40 transition-all rounded-sm text-center">
-                                Contact Us
-                            </a>
-                        </motion.div>
-                    </div>
-                </section>
-
-                {/* The Origin (Storytelling Section) */}
-                <section className="py-24 md:py-32 px-6 bg-surface-container-low relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-primary-container/10 blur-[120px] rounded-full -mr-48 -mt-48"></div>
-                    <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-12 md:gap-16 items-center">
-                        <div className="w-full md:w-1/2 order-2 md:order-1 relative z-10">
-                            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.6 }} className="space-y-6 md:space-y-8">
-                                <div>
-                                    <span className="font-['Space_Mono'] text-[#fbbb53] text-[10px] tracking-widest uppercase block mb-4">Manifesto</span>
-                                    <h3 className="font-['Space_Grotesk'] text-3xl md:text-5xl font-bold leading-tight uppercase">
-                                        SYSTEMATIC <br/> SENSORY <br/> OVERLOAD.
-                                    </h3>
-                                </div>
-                                <div className="text-muted-foreground leading-relaxed text-sm md:text-lg font-light">
-                                     {postContent ? (
-                                         <div dangerouslySetInnerHTML={{ __html: postContent.replace(/\n\n/g, '<br/><br/>').replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground">$1</strong>') }} />
-                                     ) : (
-                                        <p>We don&apos;t just craft scents; we engineer emotional trajectories. Our process begins where traditional perfumery ends—at the intersection of raw botanical power and high-velocity modern impact.</p>
-                                     )}
-                                </div>
-                                <div className="pt-4">
-                                    <span className="font-['Space_Mono'] text-primary text-xs uppercase tracking-[0.2em] border-b border-primary pb-2 hover:text-white transition-colors inline-block cursor-pointer">
-                                        Read our philosophy
-                                    </span>
-                                </div>
-                            </motion.div>
-                        </div>
-                        <div className="w-full md:w-1/2 order-1 md:order-2">
-                            <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }} className="relative group">
-                                <div className="absolute -inset-4 bg-primary-container/20 blur-2xl rounded-full group-hover:bg-primary-container/30 transition-all duration-700"></div>
-                                <Image alt="Luxury Perfume" width={600} height={750} sizes="(max-width: 768px) 100vw, 50vw" className="relative rounded-lg shadow-2xl w-full aspect-[4/5] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-_EZ7zywb98-O1bTu5cno5z0EVI-BP83Ip0cffd-1fz0PHZQF-FV-yyHJPhNa8yrn7qtVHXZsgDRJjyuraiNJbqpIiMyfIoQX9TP5bQsFogX_HDB7fDOWU_Xsdu5l9d1fF8ZU4g7uji40csZY8VgP1JLrapjQfBBux8Oepuo7tCbA_KFzY5qk9BWXJLg7FS_fboCpCr5cR9YLC0B-33bwGpL383G5L_dMdDzbncwVRtiyWz3JZnYuKkd4HyMB3mVYfBCntRagzYIt"/>
-                            </motion.div>
                         </div>
                     </div>
                 </section>
 
-                {/* The Archives (Product Showcase) */}
-                <section className="py-24 md:py-32 bg-background relative z-10 transition-colors duration-500">
-                    <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} className="px-6 mb-12 flex flex-col items-start gap-4">
-                        <span className="font-['Space_Mono'] text-primary text-[10px] tracking-[0.4em] uppercase">The Collection</span>
-                        <h3 className="font-['Syncopate'] text-3xl md:text-4xl font-bold tracking-tight uppercase">THE ARCHIVES</h3>
-                    </motion.div>
-                    
-                    <div className="flex overflow-x-auto gap-6 md:gap-8 px-6 pb-12 overflow-y-hidden snap-x snap-mandatory" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                        {posts && posts.length > 0 ? posts.map((post, idx) => (
-                             <motion.div initial={{ opacity: 0, x: 50 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ delay: idx * 0.1, duration: 0.5 }} key={post.id} onClick={() => setSelectedPost(post)} className="min-w-[85vw] md:min-w-[400px] snap-center relative aspect-[3/4] overflow-hidden group cursor-pointer rounded-sm">
-                                <Image alt={post.title} fill sizes="(max-width: 768px) 85vw, 400px" className="object-cover transition-transform duration-700 group-hover:scale-110" src={post.image_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCrVKRAySR7o_Hmi3ebvw6EJzpMPi1f_gMxnG5sgzOTyhV7uCDQ9qOAl5QQA8XRqen7QqayvAhthNSId4ccWPLaFjvbQcGQGSWq8SA9p81xTggGOzn9z0uE4L_Kx_tNYO51PvZF13C5qd0RG07ZCyAPZkPsBYYzgCKkS4PTjrbNm0SmCJEDZSJ6wI-Z9XsG_ywxXeKD04QnyXwS7lIDk6ediQcG6ORkRAmsO0Hc0XMv5eJoLns7b-PqxJ-JmjBFlUkJqfNniL5ED3Ky"} />
-                                <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
-                                <div className="absolute bottom-0 left-0 w-full p-6 md:p-8 space-y-4 shadow-[0_-20px_40px_rgba(20,10,28,0.8)_inset]">
-                                    <div className="glass-panel p-5 md:p-6 rounded-lg ghost-border">
-                                        <h4 className="font-['Space_Grotesk'] text-xl md:text-2xl font-bold mb-3 uppercase leading-tight line-clamp-2">{post.title}</h4>
-                                        <div className="flex flex-wrap gap-2 mb-4">
-                                            {post.topic && <span className="px-3 py-1 bg-[#be8621]/20 text-[#fbbb53] text-[10px] font-['Space_Mono'] rounded-full uppercase">{post.topic}</span>}
-                                            <span className="px-3 py-1 bg-[#be8621]/20 text-[#fbbb53]/80 text-[10px] font-['Space_Mono'] rounded-full">{new Date(post.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                            <span className="font-['Space_Mono'] text-[10px] tracking-widest uppercase">Tap to explore</span>
-                                            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>arrow_right_alt</span>
-                                        </div>
+                {/* Collections Grid */}
+                <section id="collections" className="max-w-7xl mx-auto py-16 px-4 md:px-8">
+                    <h2 className="text-3xl md:text-4xl font-semibold text-center text-black mb-6 tracking-tight">
+                        Collections
+                    </h2>
+
+                    {/* Category Filter Pills */}
+                    <div className="flex flex-wrap justify-center gap-3 mb-12">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-5 py-2 text-xs uppercase tracking-widest rounded-full transition-all duration-300 border ${
+                                    activeCategory === cat 
+                                        ? "bg-black text-white border-black" 
+                                        : "bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black"
+                                }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Grid */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 gap-y-12">
+                        {filteredPosts && filteredPosts.length > 0 ? filteredPosts.map((post) => (
+                            <div key={post.id} className="group cursor-pointer flex flex-col items-center text-center relative" onClick={() => setSelectedPost(post)}>
+                                {/* Wishlist Toggle Button */}
+                                <button 
+                                    onClick={(e) => toggleWishlist(e, post.id)}
+                                    className="absolute top-4 right-4 z-10 p-2 bg-white/70 backdrop-blur-md rounded-full shadow-sm hover:bg-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                >
+                                    <svg 
+                                        width="18" height="18" viewBox="0 0 24 24" 
+                                        fill={wishlist.includes(post.id) ? "red" : "none"} 
+                                        stroke={wishlist.includes(post.id) ? "red" : "currentColor"} 
+                                        strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                                        className="transition-colors"
+                                    >
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                                    </svg>
+                                </button>
+
+                                <div className="relative w-full aspect-square bg-[#f8f8f8] mb-4 overflow-hidden border border-gray-100 rounded-lg">
+                                    <Image src={post.image_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCrVKRAySR7o_Hmi3ebvw6EJzpMPi1f_gMxnG5sgzOTyhV7uCDQ9qOAl5QQA8XRqen7QqayvAhthNSId4ccWPLaFjvbQcGQGSWq8SA9p81xTggGOzn9z0uE4L_Kx_tNYO51PvZF13C5qd0RG07ZCyAPZkPsBYYzgCKkS4PTjrbNm0SmCJEDZSJ6wI-Z9XsG_ywxXeKD04QnyXwS7lIDk6ediQcG6ORkRAmsO0Hc0XMv5eJoLns7b-PqxJ-JmjBFlUkJqfNniL5ED3Ky"} alt={post.title} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                                    
+                                    {/* Badges Container */}
+                                    <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                                        {post.in_stock === false && (
+                                            <div className="bg-red-500 text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium shadow-sm">
+                                                Sold Out
+                                            </div>
+                                        )}
+                                        {post.in_stock !== false && isNewArrival(post.created_at) && (
+                                            <div className="bg-black text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium shadow-sm">
+                                                New
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                            </motion.div>
+                                <h3 className="font-medium text-sm md:text-base text-black group-hover:underline decoration-1 underline-offset-4 line-clamp-2 leading-tight">
+                                    {post.title}
+                                </h3>
+                                {post.price && (
+                                    <div className="flex items-center gap-2 mt-1.5 justify-center">
+                                        {post.compare_at_price && (
+                                            <span className="text-xs text-gray-400 line-through">${Number(post.compare_at_price).toFixed(2)}</span>
+                                        )}
+                                        <span className={`text-sm font-medium ${post.compare_at_price ? 'text-red-500' : 'text-gray-500'}`}>${Number(post.price).toFixed(2)}</span>
+                                    </div>
+                                )}
+                            </div>
                         )) : (
-                            <div className="min-w-full border border-dashed border-[#692484]/30 p-12 text-center text-muted-foreground uppercase tracking-widest text-sm font-bold rounded-xl">
-                                NO RECORDS FOUND IN ARCHIVE.
+                            <div className="col-span-full py-24 text-center border-t border-b border-gray-200">
+                                <p className="text-gray-500 uppercase tracking-widest">No products match this category</p>
                             </div>
                         )}
                     </div>
                 </section>
 
+                {/* Back to top button */}
+                <button 
+                    onClick={scrollToTop}
+                    className={`fixed bottom-8 right-8 z-50 p-3 bg-black text-white rounded-full shadow-xl transition-all duration-300 ${showTopButton ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
+                    aria-label="Scroll to top"
+                >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 15l-6-6-6 6"/>
+                    </svg>
+                </button>
+
+
                 <FragranceModal post={selectedPost} onClose={() => setSelectedPost(null)} />
             </main>
 
-            {/* Sticky Action Button */}
-            <a href="https://wa.me/97474068029" target="_blank" rel="noopener noreferrer" className="fixed bottom-[104px] md:bottom-24 right-6 z-40 w-14 h-14 bg-primary-container rounded-full flex items-center justify-center text-white shadow-[0_0_30px_rgba(105,36,132,0.6)] border border-primary/30 transition-transform active:scale-95 hover:scale-105">
-                <span className="material-symbols-outlined text-2xl" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>chat_bubble</span>
-            </a>
-
-            {/* Footer */}
-            <footer className="bg-surface-container-lowest pt-20 pb-36 md:pb-28 px-6 relative z-10 transition-colors duration-500">
-                <div className="max-w-6xl mx-auto flex flex-col items-center gap-12 text-center">
-                    <h2 className="font-['Syncopate'] text-2xl md:text-3xl font-bold tracking-[0.4em] text-primary">AMBRELLE</h2>
-                    <div className="w-full h-px bg-border"></div>
-                    <div className="flex flex-col md:flex-row justify-between w-full items-center gap-8">
-                        <p className="font-['Space_Mono'] text-[10px] text-muted-foreground uppercase tracking-widest">
-                            SYSTEMATIC FRAGRANCE LOGIC.
-                        </p>
-                        <div className="flex gap-6">
-                            <a className="text-muted-foreground hover:text-primary transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>camera</span>
-                            </a>
-                            <a className="text-muted-foreground hover:text-primary transition-colors" href="#">
-                                <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>alternate_email</span>
-                            </a>
+            <footer className="bg-[#111] text-white pt-16 pb-8 px-6 border-t border-gray-800">
+                <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div>
+                        <h3 className="font-['Syncopate'] text-sm font-light tracking-[0.3em] mb-4">AMBRELLE</h3>
+                        <p className="text-xs text-gray-500 leading-relaxed">Luxury fragrances curated for those who appreciate the art of scent.</p>
+                    </div>
+                    <div>
+                        <h4 className="text-xs uppercase tracking-wider text-gray-400 mb-4">Quick Links</h4>
+                        <div className="flex flex-col gap-2">
+                            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="text-xs text-gray-500 hover:text-white transition-colors text-left">Home</button>
+                            <button onClick={scrollToCollections} className="text-xs text-gray-500 hover:text-white transition-colors text-left">Collections</button>
+                            <Link href="/login" className="text-xs text-gray-500 hover:text-white transition-colors">Account</Link>
                         </div>
-                        <p className="font-['Space_Mono'] text-[10px] text-muted-foreground uppercase tracking-widest">
-                            &copy; 2026 AMBRELLE. ALL RIGHTS RESERVED.
-                        </p>
+                    </div>
+                    <div>
+                        <h4 className="text-xs uppercase tracking-wider text-gray-400 mb-4">Contact</h4>
+                        <a href="https://wa.me/97474068029" target="_blank" rel="noopener noreferrer" className="text-xs text-gray-500 hover:text-white transition-colors">WhatsApp</a>
                     </div>
                 </div>
+                <div className="border-t border-gray-800 pt-6 text-center">
+                    <p className="text-[10px] uppercase tracking-widest text-gray-600">
+                        &copy; {new Date().getFullYear()} AMBRELLE. ALL RIGHTS RESERVED.
+                    </p>
+                </div>
             </footer>
-
-            {/* BottomNavBar */}
-            <nav className="fixed bottom-0 left-0 w-full h-20 flex justify-around items-center px-4 sm:px-8 z-50 bg-background/80 backdrop-blur-2xl shadow-[0_-10px_30px_rgba(20,10,28,0.5)] md:hidden pointer-events-auto">
-                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="flex flex-col items-center justify-center text-primary font-bold scale-110 ring-1 ring-primary/20 rounded-full p-2 bg-background">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>auto_stories</span>
-                    <span className="font-['Space_Mono'] uppercase text-[10px] tracking-tighter mt-1">JOURNAL</span>
-                </button>
-                <button onClick={() => window.scrollTo({ top: window.innerHeight * 0.9, behavior: 'smooth' })} className="flex flex-col items-center justify-center text-muted-foreground/80 hover:text-primary transition-all p-2">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>history_edu</span>
-                    <span className="font-['Space_Mono'] uppercase text-[10px] tracking-tighter mt-1">STORY</span>
-                </button>
-                <button onClick={() => window.scrollTo({ top: window.innerHeight * 1.8, behavior: 'smooth' })} className="flex flex-col items-center justify-center text-muted-foreground/80 hover:text-primary transition-all p-2">
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24" }}>temp_preferences_custom</span>
-                    <span className="font-['Space_Mono'] uppercase text-[10px] tracking-tighter mt-1">VAULT</span>
-                </button>
-            </nav>
         </div>
     );
 }

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -54,45 +53,42 @@
 }
 
 :root {
-  /* Defaulting to Dark/Editorial theme immediately */
-  --background: #190f21;
-  --foreground: #efdcf7;
+  --background: #ffffff;
+  --foreground: #111111;
   
-  --card: #261b2e;
-  --card-foreground: #efdcf7;
+  --card: #ffffff;
+  --card-foreground: #111111;
   
-  --popover: #261b2e;
-  --popover-foreground: #efdcf7;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
   
-  --primary: #edb1ff;
-  --primary-foreground: #320046;
-  --primary-container: #692484;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --primary-container: #111111;
   
-  --secondary: #fbbb53;
-  --secondary-foreground: #442c00;
-  --secondary-container: #be8621;
+  --secondary: #e5e5e5;
+  --secondary-foreground: #111111;
+  --secondary-container: #eeeeee;
   
-  --muted: #4e434f;
-  --muted-foreground: #d1c2d1;
+  --muted: #f4f4f4;
+  --muted-foreground: #666666;
   
-  --accent: #312639;
-  --accent-foreground: #efdcf7;
+  --accent: #f4f4f4;
+  --accent-foreground: #111111;
   
-  --destructive: #ffb4ab;
-  --border: rgba(154, 141, 155, 0.15); /* outline variant at 15% */
-  --input: rgba(154, 141, 155, 0.20); /* outline variant at 20% */
-  --ring: #edb1ff;
+  --destructive: #ff0000;
+  --border: #e0e0e0;
+  --input: #e0e0e0;
+  --ring: #000000;
   
-  /* Surfacing tokens from Stitch */
-  --surface-container-lowest: #140a1c;
-  --surface-container-low: #22172a;
-  --surface-container: #261b2e;
-  --surface-container-high: #312639;
-  --surface-container-highest: #3c3044;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #fafafa;
+  --surface-container: #f4f4f4;
+  --surface-container-high: #eaeaea;
+  --surface-container-highest: #e0e0e0;
 
-  --radius: 0.625rem;
+  --radius: 0rem;
 
-  /* Design System Spacing */
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -101,55 +97,51 @@
   --space-2xl: 3rem;
   --space-3xl: 4rem;
 
-  /* Design System Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 40px rgba(105, 36, 132, 0.08); /* Ambient shadow */
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
-/* Let the dark theme explicitly define the same values to enforce the dark design language naturally */
 .dark {
-  --background: #190f21;
-  --foreground: #efdcf7;
+  --background: #ffffff;
+  --foreground: #111111;
   
-  --card: #261b2e;
-  --card-foreground: #efdcf7;
+  --card: #ffffff;
+  --card-foreground: #111111;
   
-  --popover: #261b2e;
-  --popover-foreground: #efdcf7;
+  --popover: #ffffff;
+  --popover-foreground: #111111;
   
-  --primary: #edb1ff;
-  --primary-foreground: #320046;
-  --primary-container: #692484;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --primary-container: #111111;
   
-  --secondary: #fbbb53;
-  --secondary-foreground: #442c00;
-  --secondary-container: #be8621;
+  --secondary: #e5e5e5;
+  --secondary-foreground: #111111;
+  --secondary-container: #eeeeee;
   
-  --muted: #4e434f;
-  --muted-foreground: #d1c2d1;
+  --muted: #f4f4f4;
+  --muted-foreground: #666666;
   
-  --accent: #312639;
-  --accent-foreground: #efdcf7;
+  --accent: #f4f4f4;
+  --accent-foreground: #111111;
   
-  --destructive: #ffb4ab;
-  --border: rgba(154, 141, 155, 0.15); /* outline variant at 15% */
-  --input: rgba(154, 141, 155, 0.20); /* outline variant at 20% */
-  --ring: #edb1ff;
+  --destructive: #ff0000;
+  --border: #e0e0e0;
+  --input: #e0e0e0;
+  --ring: #000000;
   
-  /* Surfacing tokens from Stitch */
-  --surface-container-lowest: #140a1c;
-  --surface-container-low: #22172a;
-  --surface-container: #261b2e;
-  --surface-container-high: #312639;
-  --surface-container-highest: #3c3044;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #fafafa;
+  --surface-container: #f4f4f4;
+  --surface-container-high: #eaeaea;
+  --surface-container-highest: #e0e0e0;
 
-  /* Shadows adjusted slightly for dark mode contrast */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 40px rgba(105, 36, 132, 0.12);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
 
 @layer base {
@@ -164,95 +156,13 @@
 
   html {
     @apply font-sans;
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
     -webkit-tap-highlight-color: transparent;
   }
 }
 
 @layer utilities {
-  .viscous-transition {
-    transition: all 400ms cubic-bezier(0.23, 1, 0.32, 1);
-  }
-  
-  .glass-panel {
-    background-color: rgba(25, 15, 33, 0.6); /* surface #190f21 at 60% */
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-  }
-  
-  .ghost-border {
-    border: 1px solid rgba(154, 141, 155, 0.15);
-  }
-
   .primary-gradient-cta {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-container) 100%);
-  }
-}
-
-/* ── Marquee Animation ── */
-@keyframes marquee {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee 20s linear infinite;
-  will-change: transform;
-}
-
-/* ── Float Animation ── */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-float {
-  animation: float 4s ease-in-out infinite;
-}
-
-/* ── Glow Text Utility ── */
-.text-glow-purple {
-  text-shadow: 0 0 20px rgba(105, 36, 132, 0.4), 0 0 40px rgba(105, 36, 132, 0.2);
-}
-
-.text-glow-white {
-  text-shadow: 0 0 20px rgba(255, 255, 255, 0.4), 0 0 40px rgba(255, 255, 255, 0.2);
-}
-
-.text-glow-accent {
-  text-shadow: 0 0 20px rgba(251, 187, 83, 0.4);
-}
-
-/* ── Smooth scrollbar for modals ── */
-.modal-scroll::-webkit-scrollbar {
-  width: 4px;
-}
-
-.modal-scroll::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.modal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(105, 36, 132, 0.3);
-  border-radius: 2px;
-}
-
-/* ── Accessibility: Reduced Motion ── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .animate-marquee, .animate-float, .animate-pulse {
-    animation: none !important;
-  }
-}
-
-/* ── Mobile touch optimizations ── */
-@media (hover: none) and (pointer: coarse) {
-  .hover-only {
-    display: none !important;
+    background: #000000;
   }
 }

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import { DraggableProductList } from "./DraggableProductList";
 
 export default async function AdminPage() {
     const supabase = await createClient();
@@ -7,88 +8,75 @@ export default async function AdminPage() {
 
     if (!session) {
         return (
-            <div className="min-h-screen flex items-center justify-center font-['Space_Mono'] text-[#692484] bg-[#13091B]">
+            <div className="min-h-screen flex items-center justify-center font-['Inter'] text-black bg-white">
                 <div className="text-center">
-                    <p className="uppercase tracking-widest text-sm mb-4">Access Denied</p>
-                    <Link href="/login" className="text-xs underline">Sign In</Link>
+                    <p className="uppercase tracking-widest text-sm mb-4 font-medium">Access Denied</p>
+                    <Link href="/login" className="text-xs border-b border-black hover:opacity-50 transition-opacity">Sign In</Link>
                 </div>
             </div>
         );
     }
 
-    const { data: posts } = await supabase.from("posts").select("id, title, slug, topic, image_url, created_at").order("created_at", { ascending: false });
+    const { data: posts } = await supabase
+        .from("posts")
+        .select("id, title, slug, topic, image_url, price, in_stock, created_at, sort_order")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false });
+
+    const totalProducts = posts?.length || 0;
+    const inStockCount = posts?.filter(p => p.in_stock !== false).length || 0;
+    const outOfStockCount = totalProducts - inStockCount;
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] py-24 px-6 md:px-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#692484]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+        <div className="min-h-screen bg-[#fafafa] text-black font-['Inter']">
+            {/* Admin Header */}
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+                <div className="max-w-6xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/" className="flex items-center gap-3 group">
+                            <div className="w-9 h-9 bg-black rounded-full flex items-center justify-center">
+                                <span className="text-white text-xs font-bold tracking-wider">A</span>
+                            </div>
+                            <span className="text-sm font-semibold tracking-wide hidden sm:block group-hover:opacity-60 transition-opacity">AMBRELLE</span>
+                        </Link>
+                        <div className="hidden sm:block w-px h-6 bg-gray-200 mx-2"></div>
+                        <span className="hidden sm:block text-xs text-gray-400 uppercase tracking-widest">Admin Dashboard</span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Link href="/admin/create-post"
+                            className="px-5 py-2.5 bg-black text-white hover:bg-gray-800 transition-colors text-xs uppercase tracking-wider font-medium rounded-md flex items-center gap-2">
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
+                            Add Product
+                        </Link>
+                    </div>
+                </div>
+            </header>
 
-            <div className="max-w-5xl mx-auto relative z-10">
-                <div className="flex items-center justify-between mb-12">
-                    <Link href="/" className="uppercase tracking-[0.2em] text-[#692484] text-xs font-bold hover:opacity-70 transition-opacity flex items-center gap-2">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6" /></svg>
-                        Home
-                    </Link>
-                    <Link href="/admin/create-post"
-                        className="px-6 py-3 primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 text-xs uppercase tracking-[0.2em] font-bold rounded-xl hover:bg-[#8B30A4] transition-colors flex items-center gap-2">
-                        <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14M5 12h14" /></svg>
-                        New Post
-                    </Link>
+            <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12">
+                {/* Stats Row */}
+                <div className="grid grid-cols-3 gap-4 mb-10">
+                    <div className="bg-white rounded-lg border border-gray-200 p-5">
+                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Total Products</p>
+                        <p className="text-3xl font-semibold">{totalProducts}</p>
+                    </div>
+                    <div className="bg-white rounded-lg border border-gray-200 p-5">
+                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">In Stock</p>
+                        <p className="text-3xl font-semibold text-green-600">{inStockCount}</p>
+                    </div>
+                    <div className="bg-white rounded-lg border border-gray-200 p-5">
+                        <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Out of Stock</p>
+                        <p className="text-3xl font-semibold text-red-500">{outOfStockCount}</p>
+                    </div>
                 </div>
 
-                <h1 className="font-['Syncopate'] text-3xl sm:text-4xl lg:text-6xl font-bold uppercase tracking-tighter mb-4">
-                    Admin <span className="text-[#692484]">Panel.</span>
-                </h1>
-                <p className="text-xs text-[#2C143B]/50 dark:text-[#F1E3FC]/40 uppercase tracking-widest mb-16">
-                    {posts?.length || 0} entries in the archives
-                </p>
-
-                <div className="space-y-3">
-                    {posts?.map((post) => (
-                        <div key={post.id}
-                            className="group flex items-center gap-5 bg-surface-container-lowest ghost-border rounded-xl p-4 hover:border-[#692484]/40 transition-colors duration-200">
-                            {/* Thumbnail */}
-                            <div className="w-14 h-14 rounded-lg bg-[#692484]/10 flex-shrink-0 overflow-hidden">
-                                {post.image_url ? (
-                                    <img src={post.image_url} alt={post.title} className="w-full h-full object-contain p-1.5" />
-                                ) : (
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <span className="text-[#692484]/30 font-bold text-xs">IMG</span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Info */}
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-['Syncopate'] text-sm font-bold uppercase leading-tight truncate text-[#2C143B] dark:text-[#F1E3FC]">
-                                    {post.title}
-                                </h3>
-                                <div className="flex items-center gap-3 mt-1.5">
-                                    {post.topic && (
-                                        <span className="text-[9px] uppercase tracking-widest bg-[#692484]/10 text-[#692484] px-2 py-0.5 rounded-full font-bold">{post.topic}</span>
-                                    )}
-                                    <span className="text-[9px] text-[#2C143B]/40 dark:text-[#F1E3FC]/40">
-                                        {new Date(post.created_at).toLocaleDateString('en-GB', { year: 'numeric', month: 'short', day: 'numeric' })}
-                                    </span>
-                                </div>
-                            </div>
-
-                            {/* Edit Button */}
-                            <Link href={`/admin/edit-post/${post.id}`}
-                                className="flex-shrink-0 px-4 py-2 border border-[#692484]/30 text-[#692484] text-[10px] uppercase tracking-widest font-bold rounded-lg hover:bg-[#692484] hover:text-white transition-all duration-200 opacity-100 lg:opacity-0 lg:group-hover:opacity-100">
-                                Edit
-                            </Link>
-                        </div>
-                    ))}
-
-                    {(!posts || posts.length === 0) && (
-                        <div className="text-center py-24 border border-dashed border-[#692484]/20 rounded-2xl">
-                            <p className="text-xs uppercase tracking-widest text-[#2C143B]/40 dark:text-[#F1E3FC]/40 mb-6">No posts yet</p>
-                            <Link href="/admin/create-post" className="px-6 py-3 primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 text-xs uppercase tracking-widest font-bold rounded-xl">
-                                Create Your First Post
-                            </Link>
-                        </div>
-                    )}
+                {/* Section Title */}
+                <div className="flex items-center justify-between mb-6">
+                    <h2 className="text-lg font-semibold tracking-tight">All Products</h2>
+                    <p className="text-xs text-gray-400">{totalProducts} items</p>
                 </div>
+
+                {/* Product List */}
+                <DraggableProductList initialPosts={posts || []} />
             </div>
         </div>
     );

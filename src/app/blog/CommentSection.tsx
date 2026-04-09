@@ -2,7 +2,6 @@
 
 import React, { useState, useTransition } from "react";
 import { addComment } from "./actions";
-import { motion } from "framer-motion";
 
 export function CommentSection({
     postId,
@@ -40,8 +39,8 @@ export function CommentSection({
     }
 
     return (
-        <section className="mt-24 pt-12 ghost-border">
-            <h3 className="font-['Syncopate'] text-3xl font-bold uppercase tracking-tighter mb-12">Discourse_</h3>
+        <section className="mt-24 pt-12 border-t border-gray-200">
+            <h3 className="font-['Syncopate'] text-3xl font-bold uppercase tracking-widest mb-12 text-black">Comments</h3>
 
             {/* Comment Form */}
             {user ? (
@@ -49,46 +48,43 @@ export function CommentSection({
                     <textarea
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        placeholder="Add to the archive..."
+                        placeholder="Add a comment..."
                         required
                         rows={4}
-                        className="w-full bg-[#2C143B]/5 dark:bg-white/5 ghost-border p-4 text-[#2C143B] dark:text-[#F1E3FC] font-sans focus:outline-none focus:border-[#692484] transition-colors resize-y shadow-inner"
+                        className="w-full bg-white border border-gray-300 p-4 text-black focus:outline-none focus:border-black transition-colors resize-y rounded-none"
                     />
-                    {error && <p className="text-[#692484] text-xs font-bold mt-2">{error}</p>}
+                    {error && <p className="text-red-600 text-xs font-bold mt-2">{error}</p>}
                     <button
                         disabled={isPending || !content.trim()}
                         type="submit"
-                        className="mt-4 px-8 py-3 primary-gradient-cta text-white rounded-sm viscous-transition uppercase tracking-widest font-bold text-xs disabled:opacity-50 hover:bg-[#692484] dark:hover:bg-[#692484] hover:text-[#13091B] transition-colors"
+                        className="mt-4 px-8 py-3 bg-black text-white hover:bg-gray-800 transition-colors uppercase tracking-widest font-bold text-xs disabled:opacity-50 rounded-none border border-black"
                     >
-                        {isPending ? "Transmitting..." : "Submit Entry"}
+                        {isPending ? "Submitting..." : "Submit Comment"}
                     </button>
                 </form>
             ) : (
-                <div className="mb-16 p-6 border border-dashed border-[#2C143B]/30 dark:border-white/30 text-center text-xs uppercase tracking-widest text-[#2C143B]/50 dark:text-[#F1E3FC]/50 font-bold">
-                    Authentication Required to Contribute. <a href="/login" className="text-[#692484] hover:underline">Sign In.</a>
+                <div className="mb-16 p-6 border border-gray-200 bg-gray-50 text-center text-xs uppercase tracking-widest text-gray-500 font-bold rounded-none">
+                    Authentication Required to Comment. <a href="/login" className="text-black hover:underline cursor-pointer">Sign In</a>.
                 </div>
             )}
 
             {/* Comments List */}
             <div className="space-y-8">
-                {comments.length > 0 ? comments.map((comment, idx) => (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: idx * 0.1 }}
+                {comments.length > 0 ? comments.map((comment) => (
+                    <div
                         key={comment.id}
-                        className="p-6 bg-surface-container rounded-xl ghost-border hover:border-[#692484] transition-colors"
+                        className="p-6 bg-white border border-gray-100 shadow-sm rounded-none hover:border-gray-200 transition-colors"
                     >
-                        <div className="flex justify-between items-center mb-4">
-                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#692484]">User_{comment.user_id.substring(0, 6)}</span>
-                            <span className="text-xs font-['Space_Mono'] text-[#2C143B]/40 dark:text-[#F1E3FC]/40">[{new Date(comment.created_at).toLocaleDateString()}]</span>
+                        <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
+                            <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-black">User_{comment.user_id.substring(0, 6)}</span>
+                            <span className="text-xs font-['Space_Mono'] text-gray-400">[{new Date(comment.created_at).toLocaleDateString()}]</span>
                         </div>
-                        <p className="font-sans text-[#2C143B]/80 dark:text-[#F1E3FC]/80 leading-relaxed text-sm">
+                        <p className="font-sans text-gray-700 leading-relaxed text-sm">
                             {comment.content}
                         </p>
-                    </motion.div>
+                    </div>
                 )) : (
-                    <p className="text-[#2C143B]/40 dark:text-[#F1E3FC]/40 text-xs uppercase tracking-widest italic">No entries in this sector yet.</p>
+                    <p className="text-gray-400 text-xs uppercase tracking-widest italic border-l-2 border-gray-200 pl-4 py-2">No comments yet.</p>
                 )}
             </div>
         </section>

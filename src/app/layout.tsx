@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Space_Mono, Syncopate, Playfair_Display, Inter, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SmoothScroll } from "@/components/SmoothScroll";
 
 const spaceMono = Space_Mono({
   weight: ['400', '700'],
@@ -63,16 +62,14 @@ export default function RootLayout({
       <body
         className={`${spaceMono.variable} ${syncopate.variable} ${playfairDisplay.variable} ${inter.variable} ${spaceGrotesk.variable} antialiased bg-background text-foreground selection:bg-primary-container/30`}
       >
-        <SmoothScroll>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
+            defaultTheme="light"
             enableSystem
             disableTransitionOnChange
           >
             {children}
           </ThemeProvider>
-        </SmoothScroll>
       </body>
     </html>
   );

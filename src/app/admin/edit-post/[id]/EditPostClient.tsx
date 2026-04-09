@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useTransition, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { updatePost, deletePost } from "../../actions";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase-client";
+import { MarkdownEditor } from "@/components/MarkdownEditor";
 
 interface Post {
     id: string;
@@ -13,6 +13,11 @@ interface Post {
     topic?: string;
     content?: string;
     image_url?: string;
+    price?: number | null;
+    in_stock?: boolean;
+    compare_at_price?: number | null;
+    stock_quantity?: number;
+    tags?: string[];
 }
 
 export default function EditPostClient({ post }: { post: Post }) {
@@ -23,6 +28,7 @@ export default function EditPostClient({ post }: { post: Post }) {
     const [preview, setPreview] = useState<string | null>(post.image_url || null);
     const [uploading, setUploading] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [inStock, setInStock] = useState(post.in_stock !== false);
     const fileRef = useRef<HTMLInputElement>(null);
     const router = useRouter();
 
@@ -44,6 +50,7 @@ export default function EditPostClient({ post }: { post: Post }) {
     async function handleSubmit(formData: FormData) {
         setError(null);
         if (imageUrl) formData.set("image_url", imageUrl);
+        formData.set("in_stock", inStock ? "true" : "false");
         startTransition(async () => {
             const result = await updatePost(post.id, formData);
             if (result?.error) {
@@ -59,100 +66,172 @@ export default function EditPostClient({ post }: { post: Post }) {
         startTransition(async () => {
             const result = await deletePost(post.id);
             if (result?.error) { setError(result.error); }
-            else { window.location.href = "/"; }
+            else { window.location.href = "/admin"; }
         });
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground font-['Space_Mono'] viscous-transition py-24 px-6 md:px-12 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#692484]/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-
-            <div className="max-w-3xl mx-auto relative z-10">
-                <div className="flex items-center justify-between mb-12">
-                    <button onClick={() => router.push("/admin")} className="uppercase tracking-[0.2em] text-[#692484] text-xs font-bold hover:text-[#2C143B] dark:hover:text-white transition-colors flex items-center gap-2">
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m15 18-6-6 6-6" /></svg>
-                        Admin Dashboard
+        <div className="min-h-screen bg-[#fafafa] text-black font-['Inter']">
+            {/* Header */}
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
+                <div className="max-w-3xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+                    <button onClick={() => router.push("/admin")} className="text-sm text-gray-500 hover:text-black transition-colors flex items-center gap-2">
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
+                        Back to Dashboard
                     </button>
-                    <button onClick={() => setConfirmDelete(true)} className="text-xs uppercase tracking-[0.2em] text-red-400 hover:text-red-500 transition-colors border border-red-400/30 hover:border-red-500/50 px-4 py-2 rounded-full">
-                        Delete Post
+                    <div className="flex items-center gap-3">
+                        <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center">
+                            <span className="text-white text-[10px] font-bold">A</span>
+                        </div>
+                        <span className="text-xs text-gray-400 uppercase tracking-wider hidden sm:block">Edit Product</span>
+                    </div>
+                </div>
+            </header>
+
+            <div className="max-w-3xl mx-auto px-4 md:px-8 py-8 md:py-12">
+                <div className="flex items-center justify-between mb-8">
+                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Edit Product</h1>
+                    <button onClick={() => setConfirmDelete(true)}
+                        className="text-xs text-red-500 hover:text-red-700 transition-colors border border-red-200 hover:border-red-400 px-4 py-2 rounded-md font-medium">
+                        Delete
                     </button>
                 </div>
 
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                    <h1 className="font-['Syncopate'] text-[28px] sm:text-3xl md:text-5xl font-bold uppercase tracking-tighter mb-8 sm:mb-10">
-                        Edit <span className="text-[#692484]">Entry.</span>
-                    </h1>
+                <form action={handleSubmit} className="space-y-6 bg-white border border-gray-200 rounded-lg p-6 md:p-10 shadow-sm">
 
-                    <form action={handleSubmit} className="space-y-6 sm:space-y-8 glass-panel ghost-border p-5 sm:p-8 md:p-12 rounded-2xl">
+                    {/* Title */}
+                    <div>
+                        <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Product Name</label>
+                        <input type="text" name="title" required defaultValue={post.title}
+                            className="w-full bg-transparent border border-gray-200 rounded-md px-4 py-3 text-base focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all" />
+                    </div>
 
+                    {/* Category + Price Row */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Title</label>
-                            <input type="text" name="title" required defaultValue={post.title}
-                                className="w-full bg-transparent ghost-border py-3 text-xl font-['Syncopate'] uppercase focus:outline-none focus:border-[#692484] transition-colors" />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Category</label>
+                            <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Category</label>
                             <input type="text" name="topic" defaultValue={post.topic || ""}
-                                className="w-full bg-transparent ghost-border py-3 text-base focus:outline-none focus:border-[#692484] transition-colors" />
+                                className="w-full bg-transparent border border-gray-200 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all" />
                         </div>
-
-                        {/* Image */}
                         <div>
-                            <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Fragrance Image</label>
-                            <input type="hidden" name="image_url" value={imageUrl} />
-                            <div onClick={() => fileRef.current?.click()}
-                                className="relative border-2 border-dashed border-[#692484]/30 hover:border-[#692484] rounded-xl p-5 sm:p-6 text-center cursor-pointer transition-colors duration-200 group flex flex-col items-center justify-center">
-                                {preview ? (
-                                    <div>
-                                        <img src={preview} alt="Preview" className="max-h-44 mx-auto object-contain" />
-                                        <p className="text-xs text-[#692484] mt-3 font-bold uppercase tracking-widest">Click to change</p>
-                                    </div>
-                                ) : (
-                                    <p className="text-sm font-bold text-[#692484] uppercase tracking-widest">{uploading ? "Uploading..." : "Upload Image"}</p>
-                                )}
+                            <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Price (USD)</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                <input type="number" name="price" step="0.01" min="0"
+                                    defaultValue={post.price ?? ""}
+                                    className="w-full bg-transparent border border-gray-200 rounded-md pl-8 pr-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all" />
                             </div>
-                            <input ref={fileRef} type="file" accept="image/*" className="hidden"
-                                onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPreview(URL.createObjectURL(f)); handleImageUpload(f); } }} />
-                            <input type="url" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setPreview(e.target.value); }}
-                                placeholder="or paste image URL"
-                                className="w-full bg-transparent ghost-border py-2 text-xs mt-3 focus:outline-none focus:border-[#692484] transition-colors text-[#2C143B]/60 dark:text-[#F1E3FC]/60" />
                         </div>
-
                         <div>
-                            <label className="block text-xs uppercase tracking-[0.1em] font-bold mb-3 text-[#2C143B]/60 dark:text-[#F1E3FC]/60">Description & Notes</label>
-                            <textarea name="content" required rows={12} defaultValue={post.content || ""}
-                                className="w-full bg-[#2C143B]/5 dark:bg-[#13091B]/50 border border-[#2C143B]/20 dark:border-white/20 p-4 text-sm focus:outline-none focus:border-[#692484] transition-colors resize-y font-sans rounded-xl leading-relaxed" />
+                            <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Compare at Price (Optional)</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm">$</span>
+                                <input type="number" name="compare_at_price" step="0.01" min="0"
+                                    defaultValue={post.compare_at_price ?? ""}
+                                    placeholder="Sale markup"
+                                    className="w-full bg-transparent border border-gray-200 rounded-md pl-8 pr-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all placeholder:text-gray-300" />
+                            </div>
                         </div>
+                        <div>
+                            <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Stock Quantity</label>
+                            <input type="number" name="stock_quantity" min="0"
+                                defaultValue={post.stock_quantity ?? 0}
+                                placeholder="0"
+                                className="w-full bg-transparent border border-gray-200 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all placeholder:text-gray-300" />
+                        </div>
+                    </div>
 
-                        {error && <div className="text-red-500 text-xs font-bold bg-red-500/10 p-3 border border-red-500/20 rounded-lg">{error}</div>}
-                        <AnimatePresence>{success && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#692484] text-xs font-bold bg-[#692484]/10 p-3 border border-[#692484]/20 rounded-lg text-center uppercase tracking-widest">✓ Updated. Returning...</motion.div>}</AnimatePresence>
+                    {/* Stock Toggle & Tags */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex items-center justify-between border border-gray-200 rounded-md px-4 py-3 h-[74px]">
+                            <div>
+                                <p className="text-sm font-medium">Availability</p>
+                                <p className="text-xs text-gray-400 mt-0.5">Is this product currently in stock?</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setInStock(!inStock)}
+                                className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${inStock ? 'bg-green-500' : 'bg-gray-300'}`}
+                            >
+                                <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow transition-transform duration-200 ${inStock ? 'left-6' : 'left-1'}`}></div>
+                            </button>
+                            <input type="hidden" name="in_stock" value={inStock ? "true" : "false"} />
+                        </div>
+                        
+                        <div>
+                            <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Tags</label>
+                            <input type="text" name="tags"
+                                defaultValue={post.tags?.join(", ") || ""}
+                                placeholder="Comma separated, e.g. citrus, summer"
+                                className="w-full bg-transparent border border-gray-200 rounded-md px-4 py-3 text-sm h-[74px] focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all placeholder:text-gray-300" />
+                        </div>
+                    </div>
 
-                        <button disabled={isPending || uploading} type="submit"
-                            className="w-full relative group primary-gradient-cta text-white rounded-sm viscous-transition shadow-lg shadow-[#692484]/20 py-5 uppercase tracking-[0.2em] font-bold text-sm overflow-hidden disabled:opacity-50 rounded-xl">
-                            <span className="relative z-10">{isPending ? "Saving..." : "Save Changes"}</span>
-                            <motion.div className="absolute inset-0 bg-[#8B30A4] z-0 origin-left" initial={{ scaleX: 0 }} whileHover={{ scaleX: 1 }} transition={{ ease: "circOut" }} />
-                        </button>
-                    </form>
-                </motion.div>
+
+
+                    {/* Image */}
+                    <div>
+                        <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Product Image</label>
+                        <input type="hidden" name="image_url" value={imageUrl} />
+                        <div onClick={() => fileRef.current?.click()}
+                            className="relative border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 flex flex-col items-center justify-center bg-gray-50/50">
+                            {preview ? (
+                                <div>
+                                    <img src={preview} alt="Preview" className="max-h-48 mx-auto object-contain rounded-md" />
+                                    <p className="text-xs text-gray-400 mt-3">Click to change</p>
+                                </div>
+                            ) : (
+                                <div className="flex flex-col items-center gap-3 py-4">
+                                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                        <svg className="w-6 h-6 text-gray-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                            <path d="M12 16.5V9.75m0 0 3 3m-3-3-3 3M6.75 19.5a4.5 4.5 0 0 1-1.41-8.775 5.25 5.25 0 0 1 10.233-2.33 3 3 0 0 1 3.758 3.848A3.752 3.752 0 0 1 18 19.5H6.75z" />
+                                        </svg>
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-600">{uploading ? "Uploading..." : "Upload Image"}</p>
+                                </div>
+                            )}
+                        </div>
+                        <input ref={fileRef} type="file" accept="image/*" className="hidden"
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPreview(URL.createObjectURL(f)); handleImageUpload(f); } }} />
+                        <input type="url" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setPreview(e.target.value); }}
+                            placeholder="Or paste image URL..."
+                            className="w-full bg-transparent border border-gray-200 rounded-md px-4 py-2.5 text-xs mt-3 focus:outline-none focus:border-black transition-colors placeholder:text-gray-300" />
+                    </div>
+
+                    {/* Content */}
+                    <div>
+                        <label className="block text-xs uppercase tracking-wider font-medium mb-2 text-gray-500">Description &amp; Notes</label>
+                        <MarkdownEditor name="content" defaultValue={post.content || ""} placeholder="Describe the fragrance, its notes, story, and character..." />
+                    </div>
+
+                    {error && <div className="text-red-700 text-xs font-medium bg-red-50 p-3 border border-red-200 rounded-md">{error}</div>}
+                    {success && <div className="text-green-700 text-xs font-medium bg-green-50 p-3 border border-green-200 rounded-md text-center">✓ Updated successfully. Returning...</div>}
+
+                    <button disabled={isPending || uploading} type="submit"
+                        className="w-full bg-black text-white hover:bg-gray-800 transition-colors py-4 uppercase tracking-wider font-medium text-sm disabled:opacity-50 rounded-md">
+                        {isPending ? "Saving..." : "Save Changes"}
+                    </button>
+                </form>
             </div>
 
             {/* Delete Confirmation Modal */}
-            <AnimatePresence>
-                {confirmDelete && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-[200] bg-[#13091B]/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6">
-                        <motion.div initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9 }}
-                            className="bg-[#1A0A24] border border-red-500/20 rounded-2xl p-6 sm:p-8 max-w-sm w-full text-center max-h-[100dvh] overflow-y-auto">
-                            <h3 className="font-['Syncopate'] text-lg font-bold uppercase mb-4 text-[#F1E3FC]">Delete This Post?</h3>
-                            <p className="text-xs text-[#F1E3FC]/60 mb-8 leading-relaxed">This action is permanent and cannot be undone. The post will be removed from the archives.</p>
-                            <div className="flex gap-3">
-                                <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3 border border-white/20 text-[#F1E3FC] text-xs uppercase tracking-widest rounded-xl hover:bg-white/5 transition-colors">Cancel</button>
-                                <button onClick={handleDelete} className="flex-1 py-3 bg-red-500 text-white text-xs uppercase tracking-widest rounded-xl hover:bg-red-600 transition-colors font-bold">Delete</button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            {confirmDelete && (
+                <div className="fixed inset-0 z-[200] bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-white border border-gray-200 rounded-lg p-8 max-w-sm w-full text-center shadow-xl">
+                        <div className="w-12 h-12 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <path d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                        </div>
+                        <h3 className="text-lg font-semibold mb-2">Delete this product?</h3>
+                        <p className="text-sm text-gray-500 mb-6">This action is permanent and cannot be undone.</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setConfirmDelete(false)} className="flex-1 py-3 border border-gray-200 text-black text-sm hover:bg-gray-50 transition-colors rounded-md font-medium">Cancel</button>
+                            <button onClick={handleDelete} className="flex-1 py-3 bg-red-500 text-white text-sm hover:bg-red-600 transition-colors font-medium rounded-md">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
