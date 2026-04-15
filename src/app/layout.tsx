@@ -8,12 +8,16 @@ const playfairDisplay = Playfair_Display({
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: "--font-playfair",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 const inter = Inter({
   weight: ['300', '400', '500', '600', '700'],
   variable: "--font-inter",
   subsets: ["latin"],
+  display: "swap",
+  fallback: ["system-ui", "Arial", "sans-serif"],
 });
 
 export const metadata: Metadata = {

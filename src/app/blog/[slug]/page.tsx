@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase-server";
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { CommentSection } from "../CommentSection";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import Link from "next/link";
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
+export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+    const { slug } = await params;
     const supabase = await createClient();
     const { data: { session } } = await supabase.auth.getSession();
 
@@ -12,7 +14,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     const { data: post, error } = await supabase
         .from('posts')
         .select('*')
-        .or(`slug.eq.${params.slug},id.eq.${params.slug}`)
+        .or(`slug.eq.${slug},id.eq.${slug}`)
         .single();
 
     if (error || !post) {
@@ -61,10 +63,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
                 {post.image_url && (
                     <div className="w-full aspect-video md:aspect-[21/9] bg-gray-50 mb-16 relative border-2 border-black p-2">
-                        <img
+                        <Image
                             src={post.image_url}
                             alt={post.title}
-                            className="w-full h-full object-cover grayscale"
+                            fill
+                            sizes="(max-width: 768px) 100vw, 900px"
+                            className="object-cover grayscale"
                         />
                     </div>
                 )}

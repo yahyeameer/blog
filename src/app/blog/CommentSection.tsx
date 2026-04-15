@@ -3,6 +3,18 @@
 import React, { useState, useTransition } from "react";
 import { addComment } from "./actions";
 
+interface Comment {
+    id: string;
+    user_id: string;
+    content: string;
+    created_at: string;
+}
+
+interface User {
+    id: string;
+    email?: string;
+}
+
 export function CommentSection({
     postId,
     postSlug,
@@ -11,8 +23,8 @@ export function CommentSection({
 }: {
     postId: string;
     postSlug: string;
-    comments: any[];
-    user: any;
+    comments: Comment[];
+    user: User | null | undefined;
 }) {
     const [isPending, startTransition] = useTransition();
     const [error, setError] = useState<string | null>(null);

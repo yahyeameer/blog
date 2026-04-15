@@ -154,6 +154,7 @@ export default function CreatePostPage() {
                         >
                             {preview ? (
                                 <div className="relative">
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={preview} alt="Preview" className="max-h-48 mx-auto object-contain rounded-md" />
                                     <p className="text-xs text-gray-400 mt-3">Click to change image</p>
                                 </div>

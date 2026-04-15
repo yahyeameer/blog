@@ -177,6 +177,7 @@ export default function EditPostClient({ post }: { post: Post }) {
                             className="relative border-2 border-dashed border-gray-200 hover:border-gray-400 rounded-lg p-6 text-center cursor-pointer transition-colors duration-200 flex flex-col items-center justify-center bg-gray-50/50">
                             {preview ? (
                                 <div>
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img src={preview} alt="Preview" className="max-h-48 mx-auto object-contain rounded-md" />
                                     <p className="text-xs text-gray-400 mt-3">Click to change</p>
                                 </div>
