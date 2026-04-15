@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Post, User } from "@/types";
 
 import { createClient } from "@/lib/supabase-client";
+import { Menu, Search, Heart, ShoppingBag, X, ChevronRight, ChevronUp } from "lucide-react";
 
 export function AmbrelleClientPage({
     postContent,
@@ -129,11 +130,7 @@ export function AmbrelleClientPage({
                     {/* Left: Menu & Desktop Navigation */}
                     <div className="flex-1 flex justify-start items-center gap-6">
                         <button onClick={() => setMobileMenuOpen(true)} className="p-2 text-black hover:opacity-60 transition-opacity" aria-label="Menu">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
+                            <Menu size={24} strokeWidth={1.25} />
                         </button>
                         
                         {/* Desktop Links */}
@@ -145,7 +142,7 @@ export function AmbrelleClientPage({
 
                     {/* Center: Logo */}
                     <div className="flex-2 flex justify-center text-center cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>
-                        <h1 className="text-xl md:text-3xl font-light tracking-[0.3em] text-black uppercase font-['Syncopate']">
+                        <h1 className="text-xl md:text-3xl font-light tracking-[0.3em] text-black uppercase font-['Playfair_Display']">
                             AMBRELLE
                         </h1>
                     </div>
@@ -164,16 +161,11 @@ export function AmbrelleClientPage({
                         </div>
                         {/* Search Button */}
                         <button onClick={() => setSearchOpen(true)} aria-label="Search" className="p-2 hover:opacity-60 transition-opacity">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
+                            <Search size={22} strokeWidth={1.25} />
                         </button>
                         {/* Wishlist Button */}
                         <button onClick={scrollToCollections} aria-label="Wishlist" className="p-2 hover:opacity-60 transition-opacity relative">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                            </svg>
+                            <Heart size={22} strokeWidth={1.25} />
                             {wishlist.length > 0 && (
                                 <span className="absolute top-1 right-0 bg-black text-white text-[9px] font-bold rounded-full h-4 w-4 flex items-center justify-center">
                                     {wishlist.length}
@@ -182,11 +174,7 @@ export function AmbrelleClientPage({
                         </button>
                         {/* Cart Button */}
                         <button onClick={scrollToCollections} aria-label="Cart" className="p-2 hover:opacity-60 transition-opacity">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <path d="M16 10a4 4 0 0 1-8 0"></path>
-                            </svg>
+                            <ShoppingBag size={22} strokeWidth={1.25} />
                         </button>
                     </div>
                 </div>
@@ -197,10 +185,7 @@ export function AmbrelleClientPage({
                 <div className="fixed inset-0 z-[100] bg-white flex flex-col">
                     {/* Search Header */}
                     <div className="flex items-center gap-4 px-4 md:px-8 py-4 border-b border-gray-100 max-w-4xl mx-auto w-full">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="flex-shrink-0">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
+                        <Search size={20} strokeWidth={1.25} color="#999" className="flex-shrink-0" />
                         <input
                             type="text"
                             autoFocus
@@ -210,10 +195,7 @@ export function AmbrelleClientPage({
                             className="flex-1 text-lg bg-transparent outline-none placeholder:text-gray-300"
                         />
                         <button onClick={() => { setSearchOpen(false); setSearchQuery(""); }} className="p-2 hover:opacity-60 transition-opacity">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="18" y1="6" x2="6" y2="18"></line>
-                                <line x1="6" y1="6" x2="18" y2="18"></line>
-                            </svg>
+                            <X size={20} strokeWidth={1.25} />
                         </button>
                     </div>
 
@@ -221,7 +203,7 @@ export function AmbrelleClientPage({
                     <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-4xl mx-auto w-full">
                         {searchQuery.trim() ? (
                             <>
-                                <p className="text-xs text-gray-400 uppercase tracking-wider mb-6">
+                                <p className="text-xs text-gray-500 uppercase tracking-wider mb-6">
                                     {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} for &ldquo;{searchQuery}&rdquo;
                                 </p>
                                 {filteredPosts.length > 0 ? (
@@ -240,32 +222,30 @@ export function AmbrelleClientPage({
                                                 <div className="flex-1 min-w-0">
                                                     <p className="font-medium text-sm truncate">{post.title}</p>
                                                     <div className="flex items-center gap-2 mt-0.5">
-                                                        {post.topic && <span className="text-xs text-gray-400">{post.topic}</span>}
+                                                        {post.topic && <span className="text-xs text-gray-500">{post.topic}</span>}
                                                         {post.price && (
                                                             <div className="flex items-center gap-2">
                                                                 {post.compare_at_price && (
-                                                                    <span className="text-[10px] text-gray-400 line-through">${Number(post.compare_at_price).toFixed(2)}</span>
+                                                                    <span className="text-[10px] text-gray-500 line-through">${Number(post.compare_at_price).toFixed(2)}</span>
                                                                 )}
                                                                 <span className="text-xs font-medium text-red-600">${Number(post.price).toFixed(2)}</span>
                                                             </div>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ccc" strokeWidth="1.5" className="flex-shrink-0">
-                                                    <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-                                                </svg>
+                                                <ChevronRight size={16} strokeWidth={1.25} color="#999" className="flex-shrink-0" />
                                             </button>
                                         ))}
                                     </div>
                                 ) : (
                                     <div className="text-center py-16">
-                                        <p className="text-gray-300 text-sm">No products match your search</p>
+                                        <p className="text-gray-500 text-sm">No products match your search</p>
                                     </div>
                                 )}
                             </>
                         ) : (
                             <div className="text-center py-16">
-                                <p className="text-gray-300 text-sm">Start typing to search fragrances</p>
+                                <p className="text-gray-500 text-sm">Start typing to search fragrances</p>
                             </div>
                         )}
                     </div>
@@ -280,12 +260,9 @@ export function AmbrelleClientPage({
                     {/* Drawer */}
                     <div className="fixed inset-y-0 left-0 z-50 bg-white w-[280px] max-w-[80vw] shadow-2xl flex flex-col">
                         <div className="flex items-center justify-between p-5 border-b border-gray-100">
-                            <span className="text-sm font-light tracking-[0.2em] uppercase font-['Syncopate']">Menu</span>
+                            <span className="text-sm font-light tracking-[0.2em] uppercase font-['Playfair_Display']">Menu</span>
                             <button onClick={() => setMobileMenuOpen(false)} className="p-2 hover:opacity-60 transition-opacity" aria-label="Close menu">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
+                                <X size={20} strokeWidth={1.25} />
                             </button>
                         </div>
                         <nav className="flex-1 p-5">
@@ -293,10 +270,7 @@ export function AmbrelleClientPage({
                                 <button onClick={() => { setMobileMenuOpen(false); scrollToCollections(); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Shop</button>
                                 <button onClick={() => { setMobileMenuOpen(false); scrollToCollections(); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors">Collections</button>
                                 <button onClick={() => { setMobileMenuOpen(false); setSearchOpen(true); }} className="text-left py-3 px-2 text-sm uppercase tracking-widest hover:bg-gray-50 rounded-md transition-colors flex items-center gap-3">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <circle cx="11" cy="11" r="8"></circle>
-                                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                    </svg>
+                                    <Search size={16} strokeWidth={1.25} />
                                     Search
                                 </button>
                             </div>
@@ -321,12 +295,13 @@ export function AmbrelleClientPage({
 
             <main>
                 {/* Hero Banner */}
-                <section className="relative w-full h-[300px] md:h-[500px]">
-                    <Image src="https://lh3.googleusercontent.com/aida-public/AB6AXuDztF3q06VmuTt2v6jxYOfnXDQLcBBn9gLPethq16BzebyfsIS6i49jqNcgayBDtDqtkeDGUPJy8HVogDiY6G8UjuFUDi-84RGmBbI9Km2x3nEafXTYBAE00LCXYdxg1Wx6SPz5wPtn2elnZTQKbwGJxpWkp_gwBGRno7_PPq7hrO_0Pg1Qv_LBW0FlnXHkj50J6y_4J8jGNcBIRvSAc5B-QxhS6-NZU92lNLBdTbh9_r1ZPcivP5WthTwnYZvVgz4VN77zKfKhSeV3" priority alt="Banner" fill className="object-cover object-center opacity-90"/>
-                    <div className="absolute inset-0 flex flex-col justify-center items-end pe-8 md:pe-24">
-                        <div className="text-right">
-                            <h2 className="text-5xl md:text-7xl text-white font-['Playfair_Display'] italic mb-4 drop-shadow-lg">Collection</h2>
-                            <button onClick={scrollToCollections} className="bg-white/90 text-black uppercase tracking-widest px-8 py-3 text-sm font-medium shadow-lg hover:bg-white transition-colors backdrop-blur-sm">
+                <section className="relative w-full h-[50vh] md:h-[75vh] bg-[#050505] overflow-hidden flex items-center justify-center">
+                    <Image src="/hero-grid.jpg.jpeg" priority alt="Ambrelle Collection Banner" fill className="object-cover md:object-contain object-center opacity-80 mix-blend-screen transition-opacity duration-1000"/>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/20 to-transparent pointer-events-none z-10 w-full h-full"></div>
+                    <div className="absolute inset-0 flex flex-col justify-center items-end pe-8 md:pe-24 pointer-events-none z-20">
+                        <div className="text-right pointer-events-auto">
+                            <h2 className="text-5xl md:text-7xl text-[#fafafa] font-['Playfair_Display'] italic mb-4 drop-shadow-2xl tracking-tighter">Collection</h2>
+                            <button onClick={scrollToCollections} className="bg-white/5 text-[#d4af37] border border-[#d4af37]/50 uppercase tracking-widest px-8 py-3 text-sm font-medium shadow-[0_0_30px_-5px_rgba(212,175,55,0.2)] hover:bg-[#d4af37] hover:text-black hover:shadow-[0_0_40px_0_rgba(212,175,55,0.4)] transition-all duration-500 backdrop-blur-xl rounded-sm">
                                 Shop Now
                             </button>
                         </div>
@@ -335,7 +310,7 @@ export function AmbrelleClientPage({
 
                 {/* Collections Grid */}
                 <section id="collections" className="max-w-7xl mx-auto py-16 px-4 md:px-8">
-                    <h2 className="text-3xl md:text-4xl font-semibold text-center text-black mb-6 tracking-tight">
+                    <h2 className="text-3xl md:text-4xl font-semibold text-center text-[#fafafa] mb-6 tracking-tight">
                         Collections
                     </h2>
 
@@ -345,10 +320,10 @@ export function AmbrelleClientPage({
                             <button
                                 key={cat}
                                 onClick={() => setActiveCategory(cat)}
-                                className={`px-5 py-2 text-xs uppercase tracking-widest rounded-full transition-all duration-300 border ${
+                                className={`px-5 py-2 text-xs uppercase tracking-widest rounded-sm transition-all duration-500 border backdrop-blur-md ${
                                     activeCategory === cat 
-                                        ? "bg-black text-white border-black" 
-                                        : "bg-white text-gray-500 border-gray-200 hover:border-black hover:text-black"
+                                        ? "bg-[#d4af37]/10 text-[#d4af37] border-[#d4af37]/50 shadow-[0_0_20px_-5px_rgba(212,175,55,0.3)]" 
+                                        : "bg-white/5 text-gray-400 border-white/5 hover:border-white/20 hover:text-white"
                                 }`}
                             >
                                 {cat}
@@ -359,50 +334,45 @@ export function AmbrelleClientPage({
                     {/* Grid */}
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 gap-y-12">
                         {filteredPosts && filteredPosts.length > 0 ? filteredPosts.map((post) => (
-                            <div key={post.id} className="group cursor-pointer flex flex-col items-center text-center relative" onClick={() => setSelectedPost(post)}>
+                            <div key={post.id} className="group cursor-pointer flex flex-col items-center text-center relative p-3 bg-white/[0.02] border border-white/5 hover:border-[#d4af37]/30 hover:bg-white/5 rounded-sm transition-all duration-700 hover:shadow-[0_4px_30px_-5px_rgba(212,175,55,0.1)]" onClick={() => setSelectedPost(post)}>
                                 {/* Wishlist Toggle Button */}
                                 <button 
                                     onClick={(e) => toggleWishlist(e, post.id)}
-                                    className="absolute top-4 right-4 z-10 p-2 bg-white/70 backdrop-blur-md rounded-full shadow-sm hover:bg-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                                    className="absolute top-6 right-6 z-10 p-2 bg-black/40 border border-white/10 backdrop-blur-xl rounded-full shadow-lg hover:bg-black/60 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                                 >
                                     <svg 
-                                        width="18" height="18" viewBox="0 0 24 24" 
-                                        fill={wishlist.includes(post.id) ? "red" : "none"} 
-                                        stroke={wishlist.includes(post.id) ? "red" : "currentColor"} 
-                                        strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-                                        className="transition-colors"
+                                        width="16" height="16" viewBox="0 0 24 24" 
+                                        fill={wishlist.includes(post.id) ? "#d4af37" : "none"} 
+                                        stroke={wishlist.includes(post.id) ? "#d4af37" : "#fafafa"} 
+                                        strokeWidth="1.25" strokeLinecap="round" strokeLinejoin="round"
+                                        className="transition-colors duration-500"
                                     >
                                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                                     </svg>
                                 </button>
 
-                                <div className="relative w-full aspect-square bg-[#f8f8f8] mb-4 overflow-hidden border border-gray-100 rounded-lg">
-                                    <Image src={post.image_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCrVKRAySR7o_Hmi3ebvw6EJzpMPi1f_gMxnG5sgzOTyhV7uCDQ9qOAl5QQA8XRqen7QqayvAhthNSId4ccWPLaFjvbQcGQGSWq8SA9p81xTggGOzn9z0uE4L_Kx_tNYO51PvZF13C5qd0RG07ZCyAPZkPsBYYzgCKkS4PTjrbNm0SmCJEDZSJ6wI-Z9XsG_ywxXeKD04QnyXwS7lIDk6ediQcG6ORkRAmsO0Hc0XMv5eJoLns7b-PqxJ-JmjBFlUkJqfNniL5ED3Ky"} alt={post.title} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <div className="relative w-full aspect-square bg-transparent mb-5 overflow-hidden rounded-sm">
+                                    <Image src={post.image_url || "https://lh3.googleusercontent.com/aida-public/AB6AXuCrVKRAySR7o_Hmi3ebvw6EJzpMPi1f_gMxnG5sgzOTyhV7uCDQ9qOAl5QQA8XRqen7QqayvAhthNSId4ccWPLaFjvbQcGQGSWq8SA9p81xTggGOzn9z0uE4L_Kx_tNYO51PvZF13C5qd0RG07ZCyAPZkPsBYYzgCKkS4PTjrbNm0SmCJEDZSJ6wI-Z9XsG_ywxXeKD04QnyXwS7lIDk6ediQcG6ORkRAmsO0Hc0XMv5eJoLns7b-PqxJ-JmjBFlUkJqfNniL5ED3Ky"} alt={post.title} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition-transform duration-[3000ms] ease-out group-hover:scale-110 opacity-90 group-hover:opacity-100" />
                                     
                                     {/* Badges Container */}
-                                    <div className="absolute top-2 left-2 flex flex-col gap-1 items-start">
+                                    <div className="absolute top-3 left-3 flex flex-col gap-2 items-start">
                                         {post.in_stock === false && (
-                                            <div className="bg-red-500 text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium shadow-sm">
+                                            <div className="bg-red-950/80 backdrop-blur-md text-red-200 border border-red-500/30 text-[9px] uppercase tracking-[0.2em] px-2 py-1 rounded-sm shadow-xl">
                                                 Sold Out
                                             </div>
                                         )}
                                         {post.in_stock !== false && isNewArrival(post.created_at) && (
-                                            <div className="bg-black text-white text-[10px] uppercase tracking-wider px-2 py-1 rounded font-medium shadow-sm">
+                                            <div className="bg-[#d4af37]/20 backdrop-blur-md text-[#d4af37] border border-[#d4af37]/30 text-[9px] uppercase tracking-[0.2em] px-2 py-1 rounded-sm shadow-xl">
                                                 New
                                             </div>
                                         )}
                                     </div>
                                 </div>
-                                <h3 className="font-medium text-sm md:text-base text-black group-hover:underline decoration-1 underline-offset-4 line-clamp-2 leading-tight">
+                                <h3 className="font-['Playfair_Display'] italic text-lg md:text-xl text-[#fafafa] tracking-wide mb-1 leading-tight group-hover:text-[#d4af37] transition-colors duration-500">
                                     {post.title}
                                 </h3>
                                 {post.price && (
-                                    <div className="flex items-center gap-2 mt-1.5 justify-center">
-                                        {post.compare_at_price && (
-                                            <span className="text-xs text-gray-400 line-through">${Number(post.compare_at_price).toFixed(2)}</span>
-                                        )}
-                                        <span className={`text-sm font-medium ${post.compare_at_price ? 'text-red-500' : 'text-gray-500'}`}>${Number(post.price).toFixed(2)}</span>
-                                    </div>
+                                    <p className="text-xs tracking-widest text-gray-400 font-light mt-1">${parseFloat(post.price.toString()).toFixed(2)}</p>
                                 )}
                             </div>
                         )) : (
@@ -419,9 +389,7 @@ export function AmbrelleClientPage({
                     className={`fixed bottom-8 right-8 z-50 p-3 bg-black text-white rounded-full shadow-xl transition-all duration-300 ${showTopButton ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"}`}
                     aria-label="Scroll to top"
                 >
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M18 15l-6-6-6 6"/>
-                    </svg>
+                    <ChevronUp size={24} strokeWidth={1.25} />
                 </button>
 
 
@@ -431,7 +399,7 @@ export function AmbrelleClientPage({
             <footer className="bg-[#111] text-white pt-16 pb-8 px-6 border-t border-gray-800">
                 <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                     <div>
-                        <h3 className="font-['Syncopate'] text-sm font-light tracking-[0.3em] mb-4">AMBRELLE</h3>
+                        <h3 className="font-['Playfair_Display'] text-sm font-light tracking-[0.3em] mb-4">AMBRELLE</h3>
                         <p className="text-xs text-gray-500 leading-relaxed">Luxury fragrances curated for those who appreciate the art of scent.</p>
                     </div>
                     <div>

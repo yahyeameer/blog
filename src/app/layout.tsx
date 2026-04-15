@@ -1,29 +1,13 @@
 import type { Metadata } from "next";
-import { Space_Mono, Syncopate, Playfair_Display, Inter, Space_Grotesk } from "next/font/google";
+import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
-
-const spaceMono = Space_Mono({
-  weight: ['400', '700'],
-  variable: "--font-space-mono",
-  subsets: ["latin"],
-});
-
-const syncopate = Syncopate({
-  weight: ['400', '700'],
-  variable: "--font-syncopate",
-  subsets: ["latin"],
-});
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
 
 const playfairDisplay = Playfair_Display({
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: "--font-playfair",
   subsets: ["latin"],
-});
-
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
 });
 
 const inter = Inter({
@@ -60,7 +44,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL,GRAD,opsz@400,0,0,24..1,1,1,24&display=swap" rel="stylesheet" />
       </head>
       <body
-        className={`${spaceMono.variable} ${syncopate.variable} ${playfairDisplay.variable} ${inter.variable} ${spaceGrotesk.variable} antialiased bg-background text-foreground selection:bg-primary-container/30`}
+        className={`${playfairDisplay.variable} ${inter.variable} antialiased bg-background text-foreground selection:bg-primary-container/30`}
       >
           <ThemeProvider
             attribute="class"
@@ -68,7 +52,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <SmoothScrollProvider>
+              {children}
+            </SmoothScrollProvider>
           </ThemeProvider>
       </body>
     </html>

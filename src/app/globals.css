@@ -53,39 +53,39 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #111111;
+  --background: #050505;
+  --foreground: #fafafa;
   
-  --card: #ffffff;
-  --card-foreground: #111111;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
   
-  --popover: #ffffff;
-  --popover-foreground: #111111;
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
   
-  --primary: #000000;
-  --primary-foreground: #ffffff;
-  --primary-container: #111111;
+  --primary: #d4af37;
+  --primary-foreground: #000000;
+  --primary-container: #c5a059;
   
-  --secondary: #e5e5e5;
-  --secondary-foreground: #111111;
-  --secondary-container: #eeeeee;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #fafafa;
+  --secondary-container: #222222;
   
-  --muted: #f4f4f4;
-  --muted-foreground: #666666;
+  --muted: #111111;
+  --muted-foreground: #888888;
   
-  --accent: #f4f4f4;
-  --accent-foreground: #111111;
+  --accent: #222222;
+  --accent-foreground: #fafafa;
   
-  --destructive: #ff0000;
-  --border: #e0e0e0;
-  --input: #e0e0e0;
-  --ring: #000000;
+  --destructive: #7f1d1d;
+  --border: #222222;
+  --input: #1a1a1a;
+  --ring: #d4af37;
   
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #fafafa;
-  --surface-container: #f4f4f4;
-  --surface-container-high: #eaeaea;
-  --surface-container-highest: #e0e0e0;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #050505;
+  --surface-container: #0a0a0a;
+  --surface-container-high: #111111;
+  --surface-container-highest: #1a1a1a;
 
   --radius: 0rem;
 
@@ -104,39 +104,39 @@
 }
 
 .dark {
-  --background: #ffffff;
-  --foreground: #111111;
+  --background: #050505;
+  --foreground: #fafafa;
   
-  --card: #ffffff;
-  --card-foreground: #111111;
+  --card: #0a0a0a;
+  --card-foreground: #fafafa;
   
-  --popover: #ffffff;
-  --popover-foreground: #111111;
+  --popover: #0a0a0a;
+  --popover-foreground: #fafafa;
   
-  --primary: #000000;
-  --primary-foreground: #ffffff;
-  --primary-container: #111111;
+  --primary: #d4af37;
+  --primary-foreground: #000000;
+  --primary-container: #c5a059;
   
-  --secondary: #e5e5e5;
-  --secondary-foreground: #111111;
-  --secondary-container: #eeeeee;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #fafafa;
+  --secondary-container: #222222;
   
-  --muted: #f4f4f4;
-  --muted-foreground: #666666;
+  --muted: #111111;
+  --muted-foreground: #888888;
   
-  --accent: #f4f4f4;
-  --accent-foreground: #111111;
+  --accent: #222222;
+  --accent-foreground: #fafafa;
   
-  --destructive: #ff0000;
-  --border: #e0e0e0;
-  --input: #e0e0e0;
-  --ring: #000000;
+  --destructive: #7f1d1d;
+  --border: #222222;
+  --input: #1a1a1a;
+  --ring: #d4af37;
   
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #fafafa;
-  --surface-container: #f4f4f4;
-  --surface-container-high: #eaeaea;
-  --surface-container-highest: #e0e0e0;
+  --surface-container-lowest: #000000;
+  --surface-container-low: #050505;
+  --surface-container: #0a0a0a;
+  --surface-container-high: #111111;
+  --surface-container-highest: #1a1a1a;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
